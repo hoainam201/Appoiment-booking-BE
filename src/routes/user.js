@@ -1,7 +1,7 @@
 const userController = require("../controllers/UserController");
 const express = require("express");
 const router = express.Router();
-const checkUser = require("../middlewaves/checkUser");
+const checkUser = require("../middlewares/checkUser");
 
 router.post("/create", userController.createUser);
 router.get("/find-user", checkUser, userController.findUser);
