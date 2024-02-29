@@ -2,6 +2,8 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const sequelize = require("../db");
 const crypt = require("../utils/crypt");
+const nodemailer = require('nodemailer');
+const generateNewPassword = require("../utils/generateNewPassword");
 
 const findUser = async (req, res) => {
     try {
@@ -77,9 +79,71 @@ const updateUser = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const user = await User.findByPk(req.user.id);
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        if (!await crypt.comparePassword(req.body.oldPassword, user.password)) {
+            return res.status(401).json({message: "Wrong password"});
+        }
+        await user.update({password: await crypt.hashPassword(req.body.newPassword)});
+        await t.commit();
+        res.status(200).json({message: "Change password success"});
+    } catch (error) {
+        await t.rollback();
+        res.status(500).json({message: error.message});
+    }
+}
+
+const forgotPassword = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const user = await User.findOne({where: {email: req.body.email}});
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'mayurijedgement@gmail.com',
+                pass: 'nbwiwwiurissaykj',
+            },
+        });
+
+        const newPassword = await generateNewPassword();
+        console.log(newPassword);
+        const hashedPassword = await crypt.hashPassword(newPassword);
+        console.log(hashedPassword);
+        await user.update({password: hashedPassword});
+        await t.commit();
+
+        // Cấu hình nội dung email
+        const mailOptions = {
+            from: 'mayurijedgement@gmail.com',
+            to: 'nam.nh194628@sis.hust.edu.vn',
+            subject: 'Thay đổi mật khách hãng',
+            text: `Mật khẩu của bạn đã được thay đổi thành: \"${newPassword}\"
+            Vui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
+        };
+
+        // Gửi em
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent: ' + info.response);
+        res.status(200).json({message: "Mật khẩu mới đã được gửi đến email của bạn!"});
+    } catch (error) {
+        await t.rollback();
+        res.status(500).json({message: error.message});
+    }
+}
+
 module.exports = {
     findUser,
     login,
     createUser,
-    updateUser
+    updateUser,
+    changePassword,
+    forgotPassword
 }
