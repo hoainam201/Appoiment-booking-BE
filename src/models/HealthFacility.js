@@ -10,6 +10,7 @@ const HealthFacility = sequelize.define("health_facilities", {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
     },
     password: {
         type: DataTypes.STRING,
@@ -26,10 +27,17 @@ const HealthFacility = sequelize.define("health_facilities", {
     phone: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
+    },
+    active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     },
     latitude: {
         type: DataTypes.STRING,
@@ -38,9 +46,29 @@ const HealthFacility = sequelize.define("health_facilities", {
     longitude: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
+    },
+    updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     }
 }, {
     timestamps: false,
+    defaultScope: {
+        attributes: {exclude: ["password"]},
+    },
+    scopes: {
+        withPassword: {
+            attributes: {
+                include: ["password"],
+            }
+        }
+    }
 });
 
 module.exports = HealthFacility

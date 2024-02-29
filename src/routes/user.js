@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const checkUser = require("../middlewares/checkUser");
 
-router.post("/create", userController.createUser);
+router.post("/register", userController.createUser);
 router.get("/find-user", checkUser, userController.findUser);
 router.post("/login", userController.login);
 router.put("/update-user", checkUser, userController.updateUser);
