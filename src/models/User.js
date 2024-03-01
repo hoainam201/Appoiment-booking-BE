@@ -20,12 +20,15 @@ const User = sequelize.define("users", {
       type: DataTypes.STRING,
       unique: true,
     },
+    address: {
+      type: DataTypes.STRING,
+    },
     inactive: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
     gender: {
-      type: DataTypes.STRING,
+      type: DataTypes.BOOLEAN,
     },
     password: {
       type: DataTypes.STRING,
@@ -43,16 +46,16 @@ const User = sequelize.define("users", {
     }
   }, {
     timestamps: false,
-    defaultScope: {
-      attributes: {exclude: ["password"]},
-    },
-    scopes: {
-      withPassword: {
-        attributes: {
-          include: ["password"],
-        },
+      defaultScope: {
+        attributes: {exclude: ["password"]},
       },
-    }
+      scopes: {
+        withPassword: {
+          attributes: {
+            include: ["password"],
+          },
+        },
+      }
   }
 );
 
