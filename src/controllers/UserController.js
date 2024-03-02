@@ -79,11 +79,13 @@ const updateUser = async (req, res) => {
 const changePassword = async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        const user = await User.findByPk(req.user.id);
+        const user = await User.scope("withPassword").findByPk(req.user.id);
         if (!user) {
+            console.log(user);
             return res.status(404).json({message: "User not found"});
         }
         if (!await crypt.comparePassword(req.body.oldPassword, user.password)) {
+            console.log('wrong password');
             return res.status(401).json({message: "Wrong password"});
         }
         await user.update({password: await crypt.hashPassword(req.body.newPassword)});
@@ -91,6 +93,7 @@ const changePassword = async (req, res) => {
         res.status(200).json({message: "Change password success"});
     } catch (error) {
         await t.rollback();
+        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
