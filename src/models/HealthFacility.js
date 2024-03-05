@@ -12,9 +12,8 @@ const HealthFacility = sequelize.define("health_facilities", {
         allowNull: false,
         unique: true,
     },
-    password: {
+    avatar: {
         type: DataTypes.STRING,
-        allowNull: false,
     },
     address: {
         type: DataTypes.STRING,
@@ -37,7 +36,7 @@ const HealthFacility = sequelize.define("health_facilities", {
     active: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: true
     },
     latitude: {
         type: DataTypes.STRING,

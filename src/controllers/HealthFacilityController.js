@@ -2,12 +2,12 @@ const HealthFacility = require("../models/HealthFacility");
 const jwt = require("jsonwebtoken");
 const {Op} = require("sequelize");
 const sequelize = require("../db");
+const fileUploader = require("../configs/cloudinary.config");
 
 const createHealthFacility = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const name = req.body.name ? req.body.name : null;
-        const password = req.body.password ? req.body.password : null;
         const address = req.body.address ? req.body.address : null;
         const specialities = req.body.specialities ? req.body.specialities : null;
         const phone = req.body.phone ? req.body.phone : null;
@@ -15,20 +15,22 @@ const createHealthFacility = async (req, res) => {
         const latitude = req.body.latitude ? req.body.latitude : null;
         const longitude = req.body.longitude ? req.body.longitude : null;
 
-        if (!name || !password || !address || !specialities || !phone || !email || !latitude || !longitude) {
+        req.file.path = req.file.path || null;
+
+        if (!name || !address || !specialities || !phone || !email || !latitude || !longitude) {
             return res.status(400).json({message: "All fields are required"});
         }
-        console.log(name, password, address, specialities, phone, email, latitude, longitude);
+        console.log(name, address, specialities, phone, email, latitude, longitude);
 
         const healthFacility = await HealthFacility.create({
-            name,
-            password,
-            address,
-            specialities,
-            phone,
-            email,
-            latitude,
-            longitude
+            name: name,
+            address: address,
+            specialities: specialities,
+            phone: phone,
+            email: email,
+            avatar: req.file.path,
+            latitude: latitude,
+            longitude: longitude,
         });
         await t.commit();
         res.status(201).json(healthFacility);
@@ -37,6 +39,15 @@ const createHealthFacility = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 };
+
+const getAllHealthFacility = async (req, res) => {
+    try {
+        const healthFacility = await HealthFacility.findAll();
+        res.status(200).json(healthFacility);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
 
 const getHealthFacility = async (req, res) => {
     try {
@@ -90,7 +101,7 @@ const updateHealthFacility = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const name = req.body.name ? req.body.name : null;
-        const password = req.body.password ? req.body.password : null;
+        // const password = req.body.password ? req.body.password : null;
         const address = req.body.address ? req.body.address : null;
         const specialities = req.body.specialities ? req.body.specialities : null;
         const phone = req.body.phone ? req.body.phone : null;
@@ -155,15 +166,11 @@ const getHealthFacilityById = async (req, res) => {
     }
 };
 
-const getHealthFacilityByToken = async (req, res) => {
-    return res.status(200).json(req.manager);
-};
 
 module.exports = {
     createHealthFacility,
+    getAllHealthFacility,
     getHealthFacility,
     updateHealthFacility,
-    login,
     getHealthFacilityById,
-    getHealthFacilityByToken
 }
