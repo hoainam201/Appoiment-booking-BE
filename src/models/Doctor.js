@@ -25,6 +25,15 @@ const Doctor = sequelize.define("doctors", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     phone: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -33,32 +42,58 @@ const Doctor = sequelize.define("doctors", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    rating: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0
+    },
     speciality: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     experience: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
-    feePerCunsultation: {
+    fee_per_cunsultation: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
     degree: {
         type: DataTypes.STRING,
+    },
+    position: {
+        type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: "Bác sĩ"
     },
     created_at: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW
     },
     updated_at: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW
     }
 }, {
-    timestamps: false
+    timestamps: false,
+    defaultScope: {
+        attributes: {
+            exclude: ["password"],
+        },
+    },
+    scopes: {
+        withPassword: {
+            attributes: {
+                include: ["password"],
+            },
+        },
+    }
 });
+
+Doctor.belongsTo(Health_facility,{
+    foreignKey: "health_facility_id",
+    as: "health_facility",
+});
+
+module.exports = Doctor;

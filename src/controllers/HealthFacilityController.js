@@ -51,9 +51,10 @@ const getAllHealthFacility = async (req, res) => {
             offset: (page - 1) * 20,
             limit: 20
         });
-
         res.status(200).json({
-            healthFacility: healthFacility});
+            healthFacility: healthFacility,
+            maxPage: maxPage
+        });
     } catch (error) {
         res.status(500).json({message: error.message});
     }
