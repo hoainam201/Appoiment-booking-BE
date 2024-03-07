@@ -20,7 +20,7 @@ const HealthFacility = sequelize.define("health_facilities", {
         allowNull: false,
     },
     specialities: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     phone: {
@@ -58,16 +58,6 @@ const HealthFacility = sequelize.define("health_facilities", {
     }
 }, {
     timestamps: false,
-    defaultScope: {
-        attributes: {exclude: ["password"]},
-    },
-    scopes: {
-        withPassword: {
-            attributes: {
-                include: ["password"],
-            }
-        }
-    }
 });
 
 module.exports = HealthFacility

@@ -42,8 +42,18 @@ const createHealthFacility = async (req, res) => {
 
 const getAllHealthFacility = async (req, res) => {
     try {
-        const healthFacility = await HealthFacility.findAll();
-        res.status(200).json(healthFacility);
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const maxPage = Math.ceil((await HealthFacility.count()) / 20);
+        if(page > maxPage) {
+            return res.status(404).json({message: "Page not found"});
+        }
+        const healthFacility = await HealthFacility.findAll({
+            offset: (page - 1) * 20,
+            limit: 20
+        });
+
+        res.status(200).json({
+            healthFacility: healthFacility});
     } catch (error) {
         res.status(500).json({message: error.message});
     }
@@ -114,39 +124,6 @@ const updateHealthFacility = async (req, res) => {
     }
 };
 
-const login = async (req, res) => {
-    try {
-        const email = req.body.email ? req.body.email : null;
-        const password = req.body.password ? req.body.password : null;
-        if (!email || !password) {
-            return res.status(400).json({message: "Cần điền đầy đủ thông tin"});
-        }
-        const healthFacility = await HealthFacility.findOne({
-            where: {
-                email
-            }
-        });
-        if (!healthFacility) {
-            return res.status(401).json({message: "Không tìm thấy tài khoản"});
-        }
-
-        if (password !== healthFacility.withPassword.password) {
-            return res.status(401).json({message: "Sai mật khẩu"});
-        }
-
-        const token = jwt.sign(
-            {
-                id: healthFacility.id
-            },
-            process.env.SECRET_KEY,
-            {
-                expiresIn: "1h"
-            });
-        return res.status(200).json(`Bearer ${token}`);
-    } catch (error) {
-        res.status(500).json({message: error.message});
-    }
-};
 
 
 const getHealthFacilityById = async (req, res) => {
