@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const {Op} = require("sequelize");
 const sequelize = require("../db");
 const fileUploader = require("../configs/cloudinary.config");
+const Doctor = require("../models/Doctor");
 
 const createHealthFacility = async (req, res) => {
     const t = await sequelize.transaction();
@@ -138,6 +139,13 @@ const getHealthFacilityById = async (req, res) => {
         if (!healthFacility) {
             return res.status(404).json({message: "Không tìm thấy cơ sở y tế phù hợp"});
         }
+        const doctors = await Doctor.findAll({
+            attributes: ["id", "name", "fee_per_cunsultation"],
+            where: {
+                health_facility_id: healthFacility.id
+            }
+        });
+        healthFacility.dataValues.doctors = doctors;
         res.status(200).json(healthFacility);
     } catch (error) {
         res.status(500).json({message: error.message});

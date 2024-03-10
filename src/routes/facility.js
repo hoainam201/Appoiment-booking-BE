@@ -14,7 +14,7 @@ router.post('/cloudinary-upload', fileUploader.single('file'), (req, res, next) 
 
 router.post("/create", fileUploader.single('file'), healthFacilityController.createHealthFacility);
 router.post("/find-health-facility", healthFacilityController.getHealthFacility);
-router.get("/find-health-facility-by-id", healthFacilityController.getHealthFacilityById);
+router.get("/:id", healthFacilityController.getHealthFacilityById);
 router.put("/update-health-facility", healthFacilityController.updateHealthFacility);
 router.get("/", healthFacilityController.getAllHealthFacility);
 
