@@ -1,7 +1,8 @@
 const {DataTypes} = require("sequelize");
-const sequelize = require("../db");
+const sequelize = require("../configs/db.config");
 const User = require("./User");
 const Doctor = require("./Doctor");
+const UserResponseDoctorReview = require("./UserResponseDoctorReview");
 
 const DoctorReview = sequelize.define("doctor_reviews", {
     id: {
@@ -25,10 +26,6 @@ const DoctorReview = sequelize.define("doctor_reviews", {
             key: "id",
         },
     },
-    anonymous: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-    },
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -46,10 +43,6 @@ const DoctorReview = sequelize.define("doctor_reviews", {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW
-    },
-    evidence: {
-        type: DataTypes.STRING,
-        allowNull: false,
     }
 }, {
     timestamps: false,

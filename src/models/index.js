@@ -1,4 +1,4 @@
-const sequelize = require("../db");
+const sequelize = require("../configs/db.config");
 
 // Đồng bộ hóa model với cơ sở dữ liệu
 sequelize

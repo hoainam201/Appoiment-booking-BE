@@ -1,30 +1,26 @@
 const {DataTypes} = require("sequelize");
 const sequelize = require("../configs/db.config");
 
-const Admin = sequelize.define("admins", {
+const New = sequelize.define("news", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  name: {
+  doctor_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: "doctors",
+      key: "id",
+    },
+  },
+  title: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  avatar: {
-    type: DataTypes.STRING,
-  },
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
+  content: {
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   created_at: {
@@ -37,19 +33,8 @@ const Admin = sequelize.define("admins", {
     allowNull: false,
     defaultValue: DataTypes.NOW
   }
-},
-{
+}, {
   timestamps: false,
-  defaultScope: {
-    attributes: {exclude: ["password"]},
-  },
-  scopes: {
-    withPassword: {
-      attributes: {
-        include: ["password"],
-      },
-    },
-  }
 });
 
-module.exports = Admin;
+module.exports = New;

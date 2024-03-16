@@ -1,9 +1,8 @@
-const db = require("../configs/db.config");
+const sequelize = require("../configs/db.config");
 const {DataTypes} = require("sequelize");
+const Health_facility = require("./HealthFacility");
 
-const FacilityManager = db.define(
-  "facility_managers",
-  {
+const HealthPackage = sequelize.define("health_packages", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -13,20 +12,23 @@ const FacilityManager = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    avatar: {
-      type: DataTypes.STRING,
+    health_facility_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Health_facility,
+        key: "id",
+      },
     },
-    username: {
+    avt: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
+    description: {
+      type: DataTypes.TEXT,
     },
-    password: {
-      type: DataTypes.STRING,
+    price: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     created_at: {
@@ -39,17 +41,9 @@ const FacilityManager = db.define(
       allowNull: false,
       defaultValue: DataTypes.NOW
     }
-  },{
+  },
+  {
     timestamps: false,
-    defaultScope: {
-      attributes: {exclude: ["password"]},
-    },
-    scopes: {
-      withPassword: {
-        attributes: {
-          include: ["password"],
-        },
-      },
-    }
-  }
-)
+  });
+
+module.exports = HealthPackage;

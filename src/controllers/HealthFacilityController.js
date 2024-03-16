@@ -1,7 +1,7 @@
 const HealthFacility = require("../models/HealthFacility");
 const jwt = require("jsonwebtoken");
 const {Op} = require("sequelize");
-const sequelize = require("../db");
+const sequelize = require("../configs/db.config");
 const fileUploader = require("../configs/cloudinary.config");
 const Doctor = require("../models/Doctor");
 

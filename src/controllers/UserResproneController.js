@@ -1,4 +1,4 @@
-const UserResprone = require("../models/UserResprone");
+const UserResprone = require("../models/UserResponseFacilityReview");
 
 const findUserResprone = async (req, res) => {
     try {

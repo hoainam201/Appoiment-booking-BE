@@ -1,8 +1,8 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-const sequelize = require("../db");
+const sequelize = require("../configs/db.config");
 const crypt = require("../utils/crypt");
-const nodemailer = require('nodemailer');
+const transporter = require("../configs/transporter.config");
 const generateNewPassword = require("../utils/generateNewPassword");
 
 const findUser = async (req, res) => {
@@ -105,13 +105,6 @@ const forgotPassword = async (req, res) => {
         if (!user) {
             return res.status(404).json({message: "User not found"});
         }
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'mayurijedgement@gmail.com',
-                pass: 'nbwiwwiurissaykj',
-            },
-        });
 
         const newPassword = await generateNewPassword();
         console.log(newPassword);
@@ -129,7 +122,6 @@ const forgotPassword = async (req, res) => {
             Vui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
         };
 
-        // Gửi em
         const info = await transporter.sendMail(mailOptions);
         console.log('Email sent: ' + info.response);
         res.status(200).json({message: "Mật khẩu mới đã được gửi đến email của bạn!"});

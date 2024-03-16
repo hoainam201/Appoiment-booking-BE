@@ -74,4 +74,22 @@ export const specialities = [
     name: "Nhãn khoa",
     key: "Opthalmology",
   }
+];
+
+export const states = [
+  {
+    id: 1,
+    name: "Đang chờ",
+    key: "pending",
+  },
+  {
+    id: 2,
+    name: "Đã xác nhận",
+    key: "confirmed",
+  },
+  {
+    id: 3,
+    name: "Đã hủy",
+    key: "canceled",
+  }
 ]
