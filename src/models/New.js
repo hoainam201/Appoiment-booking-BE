@@ -18,6 +18,13 @@ const New = sequelize.define("news", {
   title: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+    validate: {
+      len: {
+        args: [1, 100],
+        msg: "Title must be between 1 and 100 characters"
+      }
+    }
   },
   content: {
     type: DataTypes.TEXT,

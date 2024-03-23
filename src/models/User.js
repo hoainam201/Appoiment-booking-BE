@@ -15,10 +15,17 @@ const User = sequelize.define("users", {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      validate: {
+        isEmail: true
+      }
     },
     phone: {
       type: DataTypes.STRING,
       unique: true,
+      validate: {
+        len: 10
+        msg: "Phone number must be 10 digits"
+      }
     },
     address: {
       type: DataTypes.STRING,
@@ -29,6 +36,7 @@ const User = sequelize.define("users", {
     },
     gender: {
       type: DataTypes.BOOLEAN,
+      defaultValue: true
     },
     password: {
       type: DataTypes.STRING,

@@ -29,10 +29,20 @@ const DoctorReview = sequelize.define("doctor_reviews", {
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        validate: {
+            min: 1,
+            max: 5
+        }
     },
     comment: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          length: {
+            args: [1, 500],
+            msg: "Comment must be between 1 and 500 characters"
+          }
+        }
     },
     created_at: {
         type: DataTypes.DATE,
