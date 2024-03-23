@@ -47,9 +47,12 @@ const createUser = async (req, res) => {
         if (checkMail) {
             return res.status(409).json({message: "Email đã tồn tại"});
         }
-        const user = await User.create({
+        passwordEncrypted = await crypt.hashPassword(password);
+        console.log(passwordEncrypted);
+        console.log("creating user");
+        await User.create({
             email: email,
-            password: await crypt.hashPassword(password),
+            password: passwordEncrypted,
             name: name
         });
         await t.commit();

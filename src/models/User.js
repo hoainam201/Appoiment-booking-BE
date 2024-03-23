@@ -23,8 +23,8 @@ const User = sequelize.define("users", {
       type: DataTypes.STRING,
       unique: true,
       validate: {
-        len: 10
-        msg: "Phone number must be 10 digits"
+        len: [10, 11],
+        isNumeric: true
       }
     },
     address: {
