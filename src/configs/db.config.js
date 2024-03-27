@@ -11,8 +11,9 @@ const sequelize = new Sequelize(
         port: process.env.DB_POST,
         dialect: "postgres",
         dialectModule: pg,
-        // logging: false,
-    }
+        logging: false,
+        timezone: "+07:00",
+    },
 )
 
 sequelize

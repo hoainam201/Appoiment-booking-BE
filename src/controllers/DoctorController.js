@@ -26,12 +26,12 @@ const getAllDoctor = async (req, res) => {
 
 const getDoctor = async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({
-      where: {
-        id: req.params.id
-      }
-    });
-    if(!doctor) {
+    const doctorQuery = await sequelize.query(
+      "SELECT d.name, d.fee_per_cunsultation, d.rating, h.name as health_facility_name, h.address FROM doctors d JOIN health_facilities h ON d.health_facility_id = h.id WHERE d.id = " + req.params.id,
+      {type: sequelize.QueryTypes.SELECT}
+    );
+    const doctor = doctorQuery[0];
+    if(doctorQuery.length === 0) {
       return res.status(404).json({message: "Doctor not found"});
     }
     const reviews = await sequelize.query(
