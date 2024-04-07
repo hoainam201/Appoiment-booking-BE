@@ -33,20 +33,8 @@ const HealthFacility = sequelize.define("health_facilities", {
         allowNull: false,
         unique: true,
     },
-    service_rate_average: {
+    avg_rating: {
         type: DataTypes.FLOAT,
-        allowNull: false,
-        defaultValue: 0
-    },
-    qualification_rate_average: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-        defaultValue: 0
-    },
-    facility_rate_average: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-        defaultValue: 0
     },
     description: {
         type: DataTypes.TEXT,
@@ -79,4 +67,4 @@ const HealthFacility = sequelize.define("health_facilities", {
     timestamps: false,
 });
 
-module.exports = HealthFacility
+module.exports = HealthFacility;

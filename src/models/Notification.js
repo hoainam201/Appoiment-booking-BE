@@ -1,36 +1,24 @@
+const db = require("../configs/db.config");
 const {DataTypes} = require("sequelize");
-const sequelize = require("../configs/db.config");
-const User = require("./User");
 
-const FacilityReview = sequelize.define("facility_reviews", {
+const Notification = db.define(
+    "notifications", {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        facility_id: {
+        content: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        to_staff_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: Facility,
+                model: "facility_staffs",
                 key: "id",
             },
-        },
-        user_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: User,
-                key: "id",
-            },
-        },
-        rating: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        comment: {
-            type: DataTypes.STRING,
-            allowNull: false,
         },
         created_at: {
             type: DataTypes.DATE,
@@ -42,9 +30,7 @@ const FacilityReview = sequelize.define("facility_reviews", {
             allowNull: false,
             defaultValue: DataTypes.NOW
         }
-    },
-    {
-        timestamps: false,
-    });
+    }
+)
 
-module.exports = FacilityReview;
+module.exports = Notification;

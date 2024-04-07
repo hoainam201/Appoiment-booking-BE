@@ -30,9 +30,9 @@ const User = sequelize.define("users", {
     address: {
       type: DataTypes.STRING,
     },
-    inactive: {
+    active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false
+      defaultValue: true
     },
     gender: {
       type: DataTypes.BOOLEAN,

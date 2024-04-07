@@ -1,48 +1,31 @@
 const {DataTypes} = require("sequelize");
 const sequelize = require("../configs/db.config");
-const User = require("./User");
-const Doctor = require("./Doctor");
-const UserResponseDoctorReview = require("./UserResponseDoctorReview");
 
-const DoctorReview = sequelize.define("doctor_reviews", {
+const FacilityRespornse = sequelize.define("facility_respornses", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    doctor_id: {
+    facility_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Doctor,
+            model: "facilities",
             key: "id",
         },
     },
-    user_id: {
+    facility_review_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: User,
+            model: "facility_reviews",
             key: "id",
         },
     },
-    rating: {
-        type: DataTypes.INTEGER,
+    content: {
+        type: DataTypes.TEXT,
         allowNull: false,
-        validate: {
-            min: 1,
-            max: 5
-        }
-    },
-    comment: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          length: {
-            args: [1, 500],
-            msg: "Comment must be between 1 and 500 characters"
-          }
-        }
     },
     created_at: {
         type: DataTypes.DATE,
@@ -55,7 +38,7 @@ const DoctorReview = sequelize.define("doctor_reviews", {
         defaultValue: DataTypes.NOW
     }
 }, {
-    timestamps: false,
-});
+    timestamps: false
+})
 
-module.exports = DoctorReview
+module.exports = FacilityRespornse;

@@ -1,36 +1,53 @@
+const db = require("../configs/db.config");
 const {DataTypes} = require("sequelize");
-const sequelize = require("../configs/db.config");
-const User = require("./User");
 
-const FacilityReview = sequelize.define("facility_reviews", {
+const ServiceReview = db.define(
+    "service_reviews", {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        facility_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: Facility,
-                key: "id",
-            },
-        },
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: User,
+                model: "users",
+                key: "id",
+            },
+        },
+        service_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "health_services",
+                key: "id",
+            },
+        },
+        booking_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "bookings",
                 key: "id",
             },
         },
         rating: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            validate: {
+                min: 0,
+                max: 5,
+            }
         },
         comment: {
-            type: DataTypes.STRING,
-            allowNull: false,
+            type: DataTypes.TEXT,
+            validate: {
+                len: {
+                    args: [1, 500],
+                    msg: "Comment must be between 1 and 500 characters"
+                }
+            }
         },
         created_at: {
             type: DataTypes.DATE,
@@ -42,9 +59,7 @@ const FacilityReview = sequelize.define("facility_reviews", {
             allowNull: false,
             defaultValue: DataTypes.NOW
         }
-    },
-    {
-        timestamps: false,
-    });
+    }
+);
 
-module.exports = FacilityReview;
+module.exports = ServiceReview;

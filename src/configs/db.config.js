@@ -13,6 +13,9 @@ const sequelize = new Sequelize(
         dialectModule: pg,
         logging: false,
         timezone: "+07:00",
+        define: {
+            timestamps: false,
+        }
     },
 )
 

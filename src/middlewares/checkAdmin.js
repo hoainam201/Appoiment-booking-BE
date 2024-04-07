@@ -1,18 +1,18 @@
 const jwt = require("jsonwebtoken");
-const Doctor = require("../models/Doctor");
+const Admin = require("../models/Admin");
 
 module.exports = async (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({message: "Unauthorized"});
+    }
     try {
-        const token = req.headers.authorization?.split(" ")[1];
-        if (!token) {
-            return res.status(401).json({message: "Unauthorized"});
-        }
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
-        const doctor = await Doctor.findByPk(decoded.id);
-        if (!doctor) {
+        const admin = await Admin.findByPk(decoded.id);
+        if (!admin) {
             return res.status(401).json({message: "Unauthorized"});
         }
-        req.doctor = doctor;
+        req.admin = admin;
         next();
     }
     catch (error) {
