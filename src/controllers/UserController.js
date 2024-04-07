@@ -121,8 +121,7 @@ const forgotPassword = async (req, res) => {
             from: 'mayurijedgement@gmail.com',
             to: 'nam.nh194628@sis.hust.edu.vn',
             subject: 'Thay đổi mật người dùng',
-            text: `Mật khẩu của bạn đã được thay đổi thành: \"${newPassword}\"
-            Vui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
+            text: `Mật khẩu của bạn đã được thay đổi thành: \"${newPassword}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
         };
 
         const info = await transporter.sendMail(mailOptions);

@@ -30,12 +30,16 @@ const HealthService = sequelize.define("health_services", {
         allowNull: false,
         defaultValue: true
     },
+    facility_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: "health_facilities",
+            key: "id",
+        },
+    },
     avg_rating: {
         type: DataTypes.FLOAT,
-        validate: {
-            min: 0,
-            max: 5,
-        }
     },
     charge_of: {
         type: DataTypes.INTEGER,

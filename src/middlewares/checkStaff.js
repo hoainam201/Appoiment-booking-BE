@@ -14,7 +14,7 @@ module.exports = (role) =>{
             if (!staff) {
                 return res.status(401).json({message: "Unauthorized"});
             }
-            if(staff.role !== role) {
+            if(role && staff.role !== role) {
                 return res.status(403).json({message: "Forbidden"});
             }
             req.staff = staff;

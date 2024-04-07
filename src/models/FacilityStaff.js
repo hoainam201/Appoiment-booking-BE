@@ -26,6 +26,14 @@ const FacilityStaff = db.define(
                 }
             }
         },
+        facility_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "health_facilities",
+                key: "id",
+            },
+        },
         email: {
             type: DataTypes.STRING,
             allowNull: false,

@@ -43,8 +43,8 @@ const Booking = db.define(
             type: DataTypes.DATEONLY,
             allowNull: false,
         },
-        booking_date: {
-            type: DataTypes.DATE,
+        time: {
+            type: DataTypes.TIME,
             allowNull: false,
         },
         status: {

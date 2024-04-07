@@ -1,7 +1,7 @@
 const {DataTypes} = require("sequelize");
 const sequelize = require("../configs/db.config");
 
-const New = sequelize.define("news", {
+const News = sequelize.define("news", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -27,7 +27,7 @@ const New = sequelize.define("news", {
         }
     },
     status: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BOOLEAN,
         allowNull: false,
     },
     content: {
@@ -48,4 +48,4 @@ const New = sequelize.define("news", {
     timestamps: false,
 });
 
-module.exports = New;
+module.exports = News;

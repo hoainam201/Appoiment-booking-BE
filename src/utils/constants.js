@@ -1,4 +1,4 @@
-export const specialities = [
+const specialities = [
     {
         id: 0,
         name: "General",
@@ -81,13 +81,13 @@ export const specialities = [
     }
 ];
 
-export const staffRole = {
+const staffRole = {
     DOCTOR: 0,
     MANAGER: 1,
 };
 
 
-export const bookingStatus = {
+const bookingStatus = {
     PENDING: 0,
     ACCEPTED: 1,
     REJECTED: 2,
@@ -95,13 +95,26 @@ export const bookingStatus = {
     CANCELLED: 4
 };
 
-export const serviceType = {
+const newStatus = {
+    SHOW: true,
+    HIDE: false
+}
+
+const serviceType = {
     DOCTOR: 0,
     PACKAGE: 1,
 };
 
-export const notificationStatus = {
+const notificationStatus = {
     UNREAD: 0,
     READ: 1,
     DELETED: 2,
 };
+
+module.exports = {
+    specialities,
+    staffRole,
+    bookingStatus,
+    serviceType,
+    notificationStatus
+}

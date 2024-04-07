@@ -1,11 +1,17 @@
 const user = require("./user");
 const facility = require("./facility");
-const doctor = require("./doctor");
+const healthService = require("./healthService");
+const booking = require("./booking");
+const admin = require("./admin");
+const news = require("./news");
 
 function route(app) {
     app.use("/user", user);
     app.use("/health-facilities", facility);
-    app.use("/doctor", doctor);
+    app.use("/health-service", healthService);
+    app.use("/booking", booking);
+    app.use("/admin", admin);
+    app.use("/news", news);
 };
 
 module.exports = route;

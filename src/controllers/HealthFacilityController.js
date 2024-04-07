@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const {Op} = require("sequelize");
 const sequelize = require("../configs/db.config");
 const fileUploader = require("../configs/cloudinary.config");
-const Doctor = require("../models/Doctor");
 
 const createHealthFacility = async (req, res) => {
     const t = await sequelize.transaction();

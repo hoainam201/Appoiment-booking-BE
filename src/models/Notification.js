@@ -12,6 +12,9 @@ const Notification = db.define(
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        status: {
+            type: DataTypes.INTEGER,
+        },
         to_staff_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
