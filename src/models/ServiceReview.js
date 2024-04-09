@@ -49,6 +49,10 @@ const ServiceReview = db.define(
                 }
             }
         },
+        visible: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,

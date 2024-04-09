@@ -133,11 +133,45 @@ const forgotPassword = async (req, res) => {
     }
 }
 
+const inactive = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        await user.update({active: false});
+        await t.commit();
+        res.status(200).json({message: "Inactive user success"});
+    } catch (error) {
+        await t.rollback();
+        res.status(500).json({message: error.message});
+    }
+}
+
+const active = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        await user.update({active: true});
+        await t.commit();
+        res.status(200).json({message: "Active user success"});
+    } catch (error) {
+        await t.rollback();
+        res.status(500).json({message: error.message});
+    }
+}
+
 module.exports = {
     findUser,
     login,
     createUser,
     updateUser,
     changePassword,
-    forgotPassword
+    forgotPassword,
+    inactive,
+    active
 }

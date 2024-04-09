@@ -12,10 +12,10 @@ router.post('/cloudinary-upload', fileUploader.single('file'), (req, res, next) 
   res.json({ secure_url: req.file.path });
 });
 
-router.post("/create", fileUploader.single('file'), healthFacilityController.createHealthFacility);
+router.post("/create", fileUploader.single('file'), healthFacilityController.create);
 router.post("/find-health-facility", healthFacilityController.getHealthFacility);
-router.get("/:id", healthFacilityController.getHealthFacilityById);
-router.put("/update-health-facility", healthFacilityController.updateHealthFacility);
-router.get("/", healthFacilityController.getAllHealthFacility);
+router.get("/:id", healthFacilityController.getById);
+router.put("/update-health-facility", healthFacilityController.update);
+router.get("/", healthFacilityController.getAll);
 
 module.exports = router;

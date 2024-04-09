@@ -4,7 +4,7 @@ const {Op} = require("sequelize");
 const sequelize = require("../configs/db.config");
 const fileUploader = require("../configs/cloudinary.config");
 
-const createHealthFacility = async (req, res) => {
+const create = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const name = req.body.name ? req.body.name : null;
@@ -40,7 +40,7 @@ const createHealthFacility = async (req, res) => {
     }
 };
 
-const getAllHealthFacility = async (req, res) => {
+const getAll= async (req, res) => {
     try {
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const maxPage = Math.ceil((await HealthFacility.count()) / 20);
@@ -108,7 +108,7 @@ const getHealthFacility = async (req, res) => {
     }
 }
 
-const updateHealthFacility = async (req, res) => {
+const update= async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const name = req.body.name ? req.body.name : null;
@@ -127,7 +127,7 @@ const updateHealthFacility = async (req, res) => {
 
 
 
-const getHealthFacilityById = async (req, res) => {
+const getById = async (req, res) => {
     try {
         const healthFacility = await HealthFacility.findOne({
             where: {
@@ -146,9 +146,9 @@ const getHealthFacilityById = async (req, res) => {
 
 
 module.exports = {
-    createHealthFacility,
-    getAllHealthFacility,
+    create,
+    getAll,
     getHealthFacility,
-    updateHealthFacility,
-    getHealthFacilityById,
+    update,
+    getById,
 }

@@ -12,7 +12,7 @@ const FacilityReview = sequelize.define("facility_reviews", {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: Facility,
+                model: "health_facilities",
                 key: "id",
             },
         },
@@ -24,6 +24,14 @@ const FacilityReview = sequelize.define("facility_reviews", {
                 key: "id",
             },
         },
+        booking_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "bookings",
+                key: "id",
+            }
+        },
         rating: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -31,6 +39,10 @@ const FacilityReview = sequelize.define("facility_reviews", {
         comment: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        visible: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
         },
         created_at: {
             type: DataTypes.DATE,
