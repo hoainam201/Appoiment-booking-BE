@@ -95,7 +95,7 @@ const bookingStatus = {
     CANCELLED: 4
 };
 
-const newStatus = {
+const newsStatus = {
     SHOW: true,
     HIDE: false
 }
@@ -116,5 +116,6 @@ module.exports = {
     staffRole,
     bookingStatus,
     serviceType,
-    notificationStatus
+    notificationStatus,
+    newsStatus,
 }

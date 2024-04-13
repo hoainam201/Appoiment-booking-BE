@@ -4,14 +4,18 @@ const sequelize = require("../configs/db.config");
 
 const create = async (req, res) => {
     const t = await sequelize.transaction();
+    console.log(
+        req.staff.id,
+        req.body.title,
+        newsStatus.SHOW,
+        req.body.content,
+    )
     try {
         const news = await News.create({
-            doc_id: req.body.doc_id,
+            doc_id: req.staff.id,
             title: req.body.title,
-            status: newsStatus.PENDING,
+            status: newsStatus.SHOW,
             content: req.body.content,
-            created_at: new Date(),
-            updated_at: new Date()
         }, {transaction: t});
         await t.commit();
         return res.status(200).json(news);
@@ -98,16 +102,17 @@ const getById = async (req, res) => {
 }
 
 const getByDocId = async (req, res) => {
-    const doc_id = req.params.doc_id;
-    const news = await News.findAll({
-        where: {
-            doc_id
-        }
-    });
-    if (!news) {
-        return res.status(404).json({message: "News not found"});
+    try {
+        const id = req.staff.id;
+        const news = await News.findAll({
+            where: {
+                doc_id: id
+            }
+        });
+        return res.status(200).json(news);
+    } catch (error) {
+        return res.status(500).json(error);
     }
-    return res.status(200).json(news);
 }
 
 module.exports = {

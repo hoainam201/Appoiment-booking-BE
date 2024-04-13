@@ -8,7 +8,6 @@ const create = async (req, res) => {
         const admin = await Admin.create({
             name: req.body.name,
             avatar: req.body.avatar,
-            username: req.body.username,
             email: req.body.email,
             password: crypt.hashPassword(req.body.password),
             created_at: new Date(),
@@ -26,11 +25,11 @@ const create = async (req, res) => {
 const login = async (req, res) => {
     const admin = await Admin.scope("withPassword").findOne({
         where: {
-            username: req.body.username
+            email: req.body.email,
         }
     });
     if (!admin) {
-        return res.status(404).json({message: "Username not found"});
+        return res.status(404).json({message: "Admin not found"});
     };
     if (!crypt.comparePassword(req.body.password, admin.password)) {
         return res.status(401).json({message: "Wrong password"});

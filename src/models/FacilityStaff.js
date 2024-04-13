@@ -15,17 +15,6 @@ const FacilityStaff = db.define(
         avatar: {
             type: DataTypes.STRING,
         },
-        username: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-            validate: {
-                len: {
-                    args: [1, 100],
-                    msg: "Username must be between 1 and 100 characters"
-                }
-            }
-        },
         facility_id: {
             type: DataTypes.INTEGER,
             allowNull: false,

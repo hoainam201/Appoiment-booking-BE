@@ -32,7 +32,6 @@ const createDoctor = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const name = req.body.name;
-        const username = req.body.username;
         const email = req.body.email;
         const password = req.body.password;
         const avatar = req.file.patch ? req.file.path : null;
@@ -40,7 +39,6 @@ const createDoctor = async (req, res) => {
         const role = staffRole.DOCTOR;
         const staff = await FacilityStaffController.create({
             name: name,
-            username: username,
             email: email,
             password: password,
             avatar: avatar,
@@ -102,7 +100,6 @@ const createManager = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const name = req.body.name;
-        const username = req.body.username;
         const email = req.body.email;
         const password = req.body.password;
         const avatar = req.file.patch ? req.file.path : null;
@@ -110,7 +107,6 @@ const createManager = async (req, res) => {
         const role = staffRole.MANAGER;
         const staff = await FacilityStaffController.create({
             name: name,
-            username: username,
             email: email,
             password: password,
             avatar: avatar,
@@ -133,18 +129,24 @@ const createManager = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const username = req.body.username;
+        const email = req.body.email;
         const password = req.body.password;
-        const staff = await FacilityStaffController.findOne({
+        const staff = await FacilityStaffController.scope("withPassword").findOne({
             where: {
-                username: username,
-                password: password,
+                email: email,
             }
         });
-        if (!staff) {
-            return res.status(401).json({message: "Invalid username or password"});
+        // console.log(staff);
+        if (
+            !staff
+            // ||
+            // !(await crypt.comparePassword(password, staff.password))
+        ) {
+            console.log("wrong password");
+            return res.status(401).json({message: "Invalid email or password"});
         }
-        const token = jwt.sign({staff: staff}, process.env.JWT_SECRET);
+        const token = jwt.sign({id: staff.id}, process.env.SECRET_KEY);
+        console.log(token);
         res.status(200).json({token: token});
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -192,6 +194,9 @@ const inactive = async (req, res) => {
     }
 }
 
+const getRole = async (req, res) => {
+    res.status(200).json(req.staff);
+}
 
 module.exports = {
     createDoctor,
@@ -202,4 +207,5 @@ module.exports = {
     getAllManager,
     inactive,
     getAllDoctor,
+    getRole,
 }
