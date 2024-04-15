@@ -71,7 +71,7 @@ const show = async (req, res) => {
         if (!news) {
             return res.status(404).json({message: "News not found"});
         }
-        news.status = newsStatus.PENDING;
+        news.status = newsStatus.SHOW;
         news.updated_at = new Date();
         await news.save();
         await t.commit();

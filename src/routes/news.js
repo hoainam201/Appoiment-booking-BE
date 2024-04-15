@@ -9,7 +9,7 @@ router.get("/", newsController.getAll);
 router.get("/get-by-doctor", checkStaff(staffRole.DOCTOR), newsController.getByDocId);
 router.get("/:id", newsController.getById);
 router.put("/:id", newsController.update);
-router.put("/:id/hide", newsController.hide);
-router.put("/:id/show", newsController.show);
+router.patch("/hide/:id", newsController.hide);
+router.patch("/show/:id", newsController.show);
 
 module.exports = router;
