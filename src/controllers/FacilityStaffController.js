@@ -185,11 +185,11 @@ const inactive = async (req, res) => {
     try {
         const staff = await FacilityStaff.findByPk(req.params.id);
         if (!staff) {
-            return res.status(404).json({message: "Doctor not found"});
+            return res.status(404).json({message: "Staff not found"});
         }
         await staff.update({active: !staff.active});
         await t.commit();
-        res.status(200).json({message: "Doctor deleted successfully"});
+        res.status(200).json({message: "Staff updated successfully"});
     } catch (error) {
         await t.rollback();
         res.status(500).json({message: error.message});
@@ -207,7 +207,7 @@ const update = async (req, res) => {
         if (!staff) {
             return res.status(404).json({message: "Staff not found"});
         }
-        console.log(req.body, req.file.path);
+        console.log(req.body, req.file, staff.avatar);
         await staff.update({
             name: req.body.name,
             avatar: req.file ? req.file.path : staff.avatar,
@@ -256,6 +256,20 @@ const forgetPassword = async (req, res) => {
     }
 }
 
+const getAllStaffByFacility = async (req, res) => {
+    try {
+        console.log(req.staff.facility_id);
+        const staffs = await FacilityStaff.findAll({
+            where: {
+                facility_id: req.staff.facility_id
+            }
+        });
+        res.status(200).json(staffs);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 module.exports = {
     createDoctor,
     createManager,
@@ -268,4 +282,5 @@ module.exports = {
     getRole,
     update,
     forgetPassword,
+    getAllStaffByFacility
 }
