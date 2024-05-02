@@ -2,7 +2,8 @@ const healthFacilityController = require("../controllers/HealthFacilityControlle
 const express = require("express");
 const router = express.Router();
 const fileUploader = require('../configs/cloudinary.config');
-
+const checkStaff = require("../middlewares/checkStaff");
+const {staffRole} = require("../utils/constants");
 router.post('/cloudinary-upload', fileUploader.single('file'), (req, res, next) => {
   if (!req.file) {
     next(new Error('No file uploaded!'));
@@ -14,8 +15,9 @@ router.post('/cloudinary-upload', fileUploader.single('file'), (req, res, next) 
 
 router.post("/create", fileUploader.single('file'), healthFacilityController.create);
 router.post("/find-health-facility", healthFacilityController.getHealthFacility);
-router.get("/:id", healthFacilityController.getById);
-router.put("/update-health-facility", healthFacilityController.update);
+router.get("/get-by-id/:id",healthFacilityController.getById);
+router.get("/get-by-token", checkStaff(staffRole.MANAGER), healthFacilityController.getByToken);
+router.put("/update", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthFacilityController.update);
 router.get("/", healthFacilityController.getAll);
 
 module.exports = router;

@@ -23,6 +23,9 @@ const HealthFacility = sequelize.define("health_facilities", {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    type: {
+        type: DataTypes.INTEGER,
+    },
     phone: {
         type: DataTypes.STRING,
         allowNull: false,

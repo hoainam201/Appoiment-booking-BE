@@ -111,6 +111,8 @@ const notificationStatus = {
     DELETED: 2,
 };
 
+
+
 module.exports = {
     specialities,
     staffRole,
