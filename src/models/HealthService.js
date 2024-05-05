@@ -11,6 +11,9 @@ const HealthService = sequelize.define("health_services", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    image: {
+        type: DataTypes.STRING,
+    },
     type: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -54,11 +57,11 @@ const HealthService = sequelize.define("health_services", {
         defaultValue: DataTypes.NOW
     },
     created_by: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
             model: "facility_staffs",
-            key: "id",
+            key: "email",
         }
     },
     updated_at: {
@@ -67,11 +70,11 @@ const HealthService = sequelize.define("health_services", {
         defaultValue: DataTypes.NOW
     },
     updated_by: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
             model: "facility_staffs",
-            key: "id",
+            key: "email",
         }
     }
 });

@@ -5,6 +5,7 @@ const booking = require("./booking");
 const admin = require("./admin");
 const news = require("./news");
 const staff = require("./staff");
+const serviceReview = require("./serviceReview");
 
 function route(app) {
     app.use("/user", user);
@@ -14,6 +15,7 @@ function route(app) {
     app.use("/admin", admin);
     app.use("/news", news);
     app.use("/staff", staff);
+    app.use("/service-review", serviceReview);
 };
 
 module.exports = route;

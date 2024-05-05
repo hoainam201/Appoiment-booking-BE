@@ -6,7 +6,7 @@ const checkAdmin = require("../middlewares/checkAdmin");
 const fileUploader = require('../configs/cloudinary.config');
 const {staffRole} = require("../utils/constants");
 
-router.post("/create-doctor", checkStaff(staffRole.MANAGER), facilityStaffController.createDoctor);
+router.post("/create", checkStaff(staffRole.MANAGER), facilityStaffController.createDoctor);
 router.post("/create-manager", checkAdmin, facilityStaffController.createManager);
 router.post("/login", facilityStaffController.login);
 router.put("/change-password", checkStaff(),facilityStaffController.changePassword);

@@ -5,6 +5,7 @@ const sequelize = require("../configs/db.config");
 const crypt = require("../utils/crypt");
 const generateNewPassword = require("../utils/generateNewPassword");
 const transporter = require("../configs/transporter.config");
+const {hashPassword} = require("../utils/crypt");
 
 const getAllDoctor = async (req, res) => {
     try {
@@ -35,21 +36,31 @@ const createDoctor = async (req, res) => {
     try {
         const name = req.body.name;
         const email = req.body.email;
-        const password = req.body.password;
-        const avatar = req.file.patch ? req.file.path : null;
+        const password = await generateNewPassword();
         const facility_id = req.staff.facility_id;
-        const role = staffRole.DOCTOR;
+        const role = req.body.role;
         const staff = await FacilityStaff.create({
             name: name,
             email: email,
-            password: password,
-            avatar: avatar,
+            password: hashPassword(password),
             facility_id: facility_id,
+            avatar: null,
+            active: true,
+            created_at: new Date(),
+            updated_at: new Date(),
             role: role
         }, {
             transaction: t,
         });
         await t.commit();
+        const mailOptions = {
+            from: 'mayurijedgement@gmail.com',
+            to: 'nam.nh194628@sis.hust.edu.vn',
+            subject: 'Chào mừng',
+            text: `Tài khoản của bạn được tạo thành công\nEmail: \"${email}\"\n Mật khẩu là: \"${password}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
+        };
+
+        await transporter.sendMail(mailOptions);
         res.status(201).json(
             {
                 staff: staff,
@@ -58,6 +69,7 @@ const createDoctor = async (req, res) => {
         );
     } catch (error) {
         await t.rollback();
+        console.log(error);
         res.status(500).json({message: error.message});
     }
 }
@@ -249,7 +261,7 @@ const forgetPassword = async (req, res) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        res.status(200).json({message: "Mật không được gửi định nghĩa email của bạn!"});
+        res.status(200).json({message: "Mật đã được gửi định nghĩa email của bạn!"});
     } catch (error) {
         await t.rollback();
         res.status(500).json({message: error.message});

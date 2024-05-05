@@ -1,8 +1,8 @@
 const specialities = [
     {
         id: 0,
-        name: "General",
-        key: "Đa khoa",
+        name: "Đa khoa",
+        key: "General",
     },
     {
         id: 1,
