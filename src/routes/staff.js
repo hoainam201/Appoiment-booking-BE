@@ -18,5 +18,8 @@ router.get("/get-role", checkStaff(),facilityStaffController.getRole);
 router.post("/update-profile", checkStaff(), fileUploader.single('file'), facilityStaffController.update);
 router.post("/forget-password", facilityStaffController.forgetPassword);
 router.get("/get-all-staff", checkStaff(staffRole.MANAGER), facilityStaffController.getAllStaffByFacility);
+router.get("/get-all-staff-by-facility", checkStaff(staffRole.MANAGER), facilityStaffController.getAllStaffByFacility);
+router.get("/get-doctors", checkStaff(staffRole.MANAGER), facilityStaffController.getDoctorByManager);
+
 
 module.exports = router;

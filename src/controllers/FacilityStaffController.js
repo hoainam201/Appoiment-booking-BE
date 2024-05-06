@@ -282,6 +282,24 @@ const getAllStaffByFacility = async (req, res) => {
     }
 }
 
+const getDoctorByManager = async (req, res) => {
+    try {
+        const staffs = await FacilityStaff.findAll({
+            where: {
+                facility_id: req.staff.facility_id,
+                role: staffRole.DOCTOR,
+                active: true,
+            }
+        });
+        if(!staffs || !staffs.length) {
+            return res.status(404).json({message: "Staff not found"});
+        }
+        res.status(200).json(staffs);
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
 module.exports = {
     createDoctor,
     createManager,
@@ -294,5 +312,6 @@ module.exports = {
     getRole,
     update,
     forgetPassword,
-    getAllStaffByFacility
+    getAllStaffByFacility,
+    getDoctorByManager
 }

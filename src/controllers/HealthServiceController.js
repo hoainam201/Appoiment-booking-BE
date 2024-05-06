@@ -153,5 +153,5 @@ module.exports = {
     create,
     update,
     findById,
-    getAllByToken
+    getAllByToken,
 }
