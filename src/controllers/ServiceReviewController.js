@@ -2,7 +2,7 @@ const ServiceReview = require("../models/ServiceReview");
 const {newsStatus, bookingStatus} = require("../utils/constants");
 const Booking = require("../models/Booking");
 const HealthService = require("../models/HealthService");
-const db = require("../configs/db.config");
+const sequelize = require("../configs/db.config");
 
 const create = async (req, res) => {
     const t = await sequelize.transaction();
@@ -76,7 +76,15 @@ const update = async (req, res) => {
     }
 }
 
+const getAllByService = async (req, res) => {
+    const query = `SELECT service_reviews.*, users.name FROM service_reviews LEFT JOIN users ON service_reviews.user_id = users.id WHERE service_id = ${req.params.id} LIMIT 10 OFFSET ${10 * (req.query.page - 1)}`;
+    const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+    const total = await ServiceReview.count({where: {service_id: req.params.id}});
+    res.status(200).json({reviews: reviews, total: total});
+}
+
 module.exports = {
     create,
-    update
+    update,
+    getAllByService
 }

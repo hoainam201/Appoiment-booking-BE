@@ -45,10 +45,10 @@ const HealthService = sequelize.define("health_services", {
         type: DataTypes.FLOAT,
     },
     charge_of: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         references: {
             model: "facility_staffs",
-            key: "id",
+            key: "email",
         }
     },
     created_at: {

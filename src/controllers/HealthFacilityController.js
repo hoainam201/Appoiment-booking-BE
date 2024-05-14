@@ -147,7 +147,7 @@ const update= async (req, res) => {
         healthFacility.type = type;
         healthFacility.phone = phone;
         healthFacility.description = description;
-        healthFacility.avatar = avatar;
+        healthFacility.avatar = avatar ? avatar : healthFacility.avatar;
         healthFacility.email = email;
         healthFacility.latitude = latitude;
         healthFacility.longitude = longitude;

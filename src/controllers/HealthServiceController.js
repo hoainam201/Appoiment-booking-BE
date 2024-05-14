@@ -1,6 +1,7 @@
 const HealthService = require("../models/HealthService");
-const {serviceType} = require("../utils/constants");
+const {serviceType, bookingStatus} = require("../utils/constants");
 const sequelize = require("../configs/db.config");
+const Booking = require("../models/Booking");
 const { QueryTypes } = require('sequelize');
 
 const getAllDoctors = async (req, res) => {
@@ -61,15 +62,19 @@ const create = async (req, res) => {
         const fee = req.body.fee ? req.body.fee : null;
         const active = req.body.active ? req.body.active : true;
         const avg_rating =  0;
+        const charge_of = req.body.chargeOf;
         const created_by = req.staff.email;
         const updated_by = req.staff.email;
+        console.log(req.body);
         await HealthService.create({
             name: name,
             type: type,
             speciality: speciality,
             description: description,
             image: req.file.path ? req.file.path : null,
+            facility_id: req.staff.facility_id,
             fee: fee,
+            charge_of: charge_of,
             active: active,
             avg_rating: avg_rating,
             created_by: created_by,
@@ -93,13 +98,26 @@ const findById = async (req, res) => {
     if (!service) {
         return res.status(404).json({message: "Health service not found"});
     }
-    res.status(200).json({service: service});
+    const bookingCount = await Booking.count({
+        where: {
+            service_id: id
+        }
+    });
+    service.dataValues.booking_count = bookingCount;
+    const completedBookingCount = await Booking.count({
+        where: {
+            service_id: id,
+            status: bookingStatus.COMPLETED,
+        }
+    });
+    service.dataValues.completed_booking_count = completedBookingCount;
+    res.status(200).json(service);
 }
 
 const update = async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        const id = req.params.id ? req.params.id : null;
+        const id = req.params.id;
         const service = await HealthService.findOne({
             where: {
                 id: id
@@ -108,6 +126,7 @@ const update = async (req, res) => {
         if (!service) {
             return res.status(404).json({message: "Health service not found"});
         }
+        service.charge_of = req.body.chargeOf ? req.body.chargeOf : service.charge_of;
         service.name = req.body.name ? req.body.name : service.name;
         service.type = req.body.type ? req.body.type : service.type;
         if(req.file){
@@ -118,6 +137,7 @@ const update = async (req, res) => {
         service.fee = req.body.fee ? req.body.fee : service.fee;
         service.active = req.body.active ? req.body.active : service.active;
         service.updated_by = req.staff.email;
+        service.updated_at = new Date();
         await service.save({transaction: t});
         await t.commit();
         res.status(200).json({message: "Health service updated"});
@@ -131,10 +151,9 @@ const getAllByToken = async (req, res) => {
     try {
         const id = req.staff.facility_id;
         let querysql = "SELECT h.*, count(s.service_id) as review_count FROM health_services h " +
-            "LEFT JOIN service_reviews s ON h.id = s.service_id " + `WHERE h.facility_id = ?1 ` +
+            "LEFT JOIN service_reviews s ON h.id = s.service_id " + `WHERE h.facility_id = ${id} ` +
             "GROUP BY h.id";
         const services = await sequelize.query(querysql, {
-            replacements: [id],
             type: QueryTypes.SELECT
         });
         if (!services) {
