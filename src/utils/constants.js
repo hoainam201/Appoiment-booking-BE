@@ -84,6 +84,7 @@ const specialities = [
 const staffRole = {
     DOCTOR: 0,
     MANAGER: 1,
+    ADMIN: 2,
 };
 
 
@@ -92,7 +93,9 @@ const bookingStatus = {
     ACCEPTED: 1,
     REJECTED: 2,
     COMPLETED: 3,
-    CANCELLED: 4
+    CANCELLED: 4,
+    STARTED: 5,
+    PAID: 6,
 };
 
 const newsStatus = {
@@ -110,7 +113,6 @@ const notificationStatus = {
     READ: 1,
     DELETED: 2,
 };
-
 
 
 module.exports = {

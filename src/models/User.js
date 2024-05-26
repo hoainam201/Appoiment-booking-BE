@@ -42,6 +42,9 @@ const User = sequelize.define("users", {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    token: {
+      type: DataTypes.STRING
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

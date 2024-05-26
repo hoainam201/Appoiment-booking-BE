@@ -16,7 +16,10 @@ router.post('/cloudinary-upload', fileUploader.single('file'), (req, res, next) 
 router.post("/create", fileUploader.single('file'), healthFacilityController.create);
 router.post("/find-health-facility", healthFacilityController.getHealthFacility);
 router.get("/get-by-id/:id",healthFacilityController.getById);
+router.get("/get-by-admin/:id", checkStaff(staffRole.ADMIN), healthFacilityController.getByAdmin);
 router.get("/get-by-token", checkStaff(staffRole.MANAGER), healthFacilityController.getByToken);
+router.get("/get-all", healthFacilityController.getAllNotPaged);
+// router.patch("/inactive/:id", checkStaff(staffRole.MANAGER), healthFacilityController.inactive);
 router.put("/update", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthFacilityController.update);
 router.get("/", healthFacilityController.getAll);
 

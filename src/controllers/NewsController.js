@@ -4,17 +4,12 @@ const sequelize = require("../configs/db.config");
 
 const create = async (req, res) => {
     const t = await sequelize.transaction();
-    console.log(
-        req.staff.id,
-        req.body.title,
-        newsStatus.SHOW,
-        req.body.content,
-    )
     try {
         const news = await News.create({
             doc_id: req.staff.id,
             title: req.body.title,
             status: newsStatus.SHOW,
+            banner: req.file?.path || null,
             content: req.body.content,
         }, {transaction: t});
         await t.commit();
@@ -35,6 +30,9 @@ const update = async (req, res) => {
         news.title = req.body.title;
         news.content = req.body.content;
         news.updated_at = new Date();
+        if (req.file) {
+            news.banner = req.file?.filename;
+        }
         await news.save();
         await t.commit();
         return res.status(200).json(news);

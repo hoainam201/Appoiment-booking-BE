@@ -6,6 +6,7 @@ const crypt = require("../utils/crypt");
 const generateNewPassword = require("../utils/generateNewPassword");
 const transporter = require("../configs/transporter.config");
 const {hashPassword} = require("../utils/crypt");
+const {Op} = require("sequelize");
 
 const getAllDoctor = async (req, res) => {
     try {
@@ -37,12 +38,14 @@ const createDoctor = async (req, res) => {
         const name = req.body.name;
         const email = req.body.email;
         const password = await generateNewPassword();
-        const facility_id = req.staff.facility_id;
+        const facility_id = req.staff.facility_id ;
         const role = req.body.role;
+        console.log(name, email, password, facility_id, role);
+        const passwordHash = await hashPassword(password);
         const staff = await FacilityStaff.create({
             name: name,
             email: email,
-            password: hashPassword(password),
+            password: passwordHash,
             facility_id: facility_id,
             avatar: null,
             active: true,
@@ -115,24 +118,37 @@ const createManager = async (req, res) => {
     try {
         const name = req.body.name;
         const email = req.body.email;
-        const password = req.body.password;
-        const avatar = req.file.patch ? req.file.path : null;
-        const facility_id = req.staff.facility_id;
+        const password = await generateNewPassword();
+        const facility_id = req.staff.facility_id ;
         const role = staffRole.MANAGER;
+        console.log(name, email, password, facility_id, role);
+        const passwordHash = await hashPassword(password);
         const staff = await FacilityStaff.create({
             name: name,
             email: email,
-            password: password,
-            avatar: avatar,
+            password: passwordHash,
             facility_id: facility_id,
-            role: role
+            avatar: null,
+            active: true,
+            created_at: new Date(),
+            updated_at: new Date(),
+            role: staffRole.MANAGER,
         }, {
             transaction: t,
         });
+        await t.commit();
+        const mailOptions = {
+            from: 'mayurijedgement@gmail.com',
+            to: 'nam.nh194628@sis.hust.edu.vn',
+            subject: 'Chào mừng',
+            text: `Tài khoản của bạn được tạo thành công\nEmail: \"${email}\"\n Mật khẩu là: \"${password}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
+        };
+
+        await transporter.sendMail(mailOptions);
         res.status(201).json(
             {
                 staff: staff,
-                message: "Manager created successfully",
+                message: "The manager was created successfully",
             }
         );
     } catch (error) {
@@ -160,7 +176,8 @@ const login = async (req, res) => {
             return res.status(401).json({message: "Invalid email or password"});
         }
         const token = jwt.sign({id: staff.id}, process.env.SECRET_KEY);
-        console.log(token);
+        staff.token = token;
+        await staff.save();
         res.status(200).json({token: token});
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -209,6 +226,7 @@ const inactive = async (req, res) => {
 }
 
 const getRole = async (req, res) => {
+    console.log(req.staff);
     res.status(200).json(req.staff);
 }
 
@@ -270,10 +288,15 @@ const forgetPassword = async (req, res) => {
 
 const getAllStaffByFacility = async (req, res) => {
     try {
-        console.log(req.staff.facility_id);
+        if (!req.staff.facility_id) {
+            return res.status(401).json({message: "Unauthorized"});
+        }
         const staffs = await FacilityStaff.findAll({
             where: {
-                facility_id: req.staff.facility_id
+                facility_id: req.staff.facility_id,
+                id: {
+                    [Op.ne]: req.staff.id
+                }
             }
         });
         res.status(200).json(staffs);

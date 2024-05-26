@@ -7,7 +7,7 @@ const generateNewPassword = require("../utils/generateNewPassword");
 
 const findUser = async (req, res) => {
     try {
-
+        console.log(req.user);
         res.status(200).json(req.user);
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -26,8 +26,9 @@ const login = async (req, res) => {
         if (!await crypt.comparePassword(req.body.password, user.password)) {
             return res.status(401).json({message: "Wrong password"});
         }
-        const token = jwt.sign({id: user.id}, process.env.SECRET_KEY, {expiresIn: "1h"});
-        console.log(user);
+        const token = jwt.sign({id: user.id}, process.env.SECRET_KEY, {expiresIn: "7d"});
+        user.token = token;
+        await user.save();
         res.status(200).json({token: `${token}`});
     } catch (error) {
         res.status(500).json({message: error.message});

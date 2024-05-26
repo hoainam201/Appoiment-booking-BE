@@ -1,7 +1,7 @@
 const {DataTypes} = require("sequelize");
 const sequelize = require("../configs/db.config");
 
-const FacilityRespornse = sequelize.define("facility_respornses", {
+const FacilityResponse = sequelize.define("facility_responses", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -11,7 +11,7 @@ const FacilityRespornse = sequelize.define("facility_respornses", {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: "facilities",
+            model: "health_facilities",
             key: "id",
         },
     },
@@ -41,4 +41,4 @@ const FacilityRespornse = sequelize.define("facility_respornses", {
     timestamps: false
 })
 
-module.exports = FacilityRespornse;
+module.exports = FacilityResponse;

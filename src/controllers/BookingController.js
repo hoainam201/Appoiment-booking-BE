@@ -1,66 +1,95 @@
 const Booking = require("../models/Booking");
-const {bookingStatus} = require("../utils/constants");
+const {bookingStatus, serviceType} = require("../utils/constants");
 const sequelize = require("../configs/db.config");
 const {QueryTypes, Op} = require("sequelize");
 const Notification = require("../models/Notification");
 const {notificationStatus} = require("../utils/constants");
 const transporter = require("../configs/transporter.config");
+const HealthService = require("../models/HealthService");
+const Diagnosis = require("../models/Diagnosis");
+const Prescription = require("../models/Prescription");
 
 const getBookingByUser = async (req, res) => {
-    const id = req.user.id;
-    const bookings = await Booking.findAll({
-        where: {
-            booking_user_id: id,
-        }
-    });
-    return res.status(200).json(bookings);
+    try {
+
+        const id = req.user.id;
+        const query = `select bookings.*, health_services.name as service_name
+                       from bookings
+                                join health_services on bookings.service_id = health_services.id
+                       where user_id = ${id}
+                       order by updated_at desc;`;
+        const bookings = await sequelize.query(query, {
+            type: QueryTypes.SELECT
+        });
+        return res.status(200).json(bookings);
+    } catch (error) {
+        return res.status(500).json({message: error.message});
+    }
 };
 
 const getBookingByDoctor = async (req, res) => {
-    const id = req.staff.facility_id;
-    const query = "select * from bookings where service_id in (select id from health_services where facility_id = ";
-    const bookings = sequelize.query(query + id + ")", {
-        type: QueryTypes.SELECT,
-    })
-    return res.status(200).json(bookings);
+    try {
+        const charge_of = req.staff.email;
+        const speciality = req.staff.speciality;
+        const query = `select b.*, h.name as service_name
+                       from bookings b
+                                join health_services h on b.service_id = h.id
+                       where (b.charge_of = ? or
+                              (h.speciality = ? and h.type = 1))
+                         and ((b.status = 1 and b.time >= current_date and b.time < current_date + 7)
+                           or b.status = 5)
+                       order by (b.time - current_timestamp) asc;`;
+        const bookings = await sequelize.query(query, {
+            replacements: [charge_of, speciality],
+            type: QueryTypes.SELECT,
+        })
+        return res.status(200).json(bookings);
+    } catch (error) {
+        return res.status(500).json({message: error.message});
+    }
 };
 
 const getBookingByManager = async (req, res) => {
-    const id = req.staff.id;
-    const query = "select * from bookings where service_id in (select id from health_services where facility_id = ";
-    const bookings = sequelize.query(query + id + ")", {
-        type: QueryTypes.SELECT
-    });
-    return res.status(200).json(bookings);
+    try {
+        const id = req.staff.facility_id;
+        const query = `select bookings.*, health_services.name as service_name
+                       from bookings
+                                join health_services on bookings.service_id = health_services.id
+                       where service_id in (select id from health_services where facility_id = ${id})
+                       order by id desc;`;
+        const bookings = await sequelize.query(query, {
+            type: QueryTypes.SELECT
+        });
+        res.status(200).json(bookings);
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
 
 const create = async (req, res) => {
     const t = await sequelize.transaction();
     try {
+        if (!req.body.service_id || !req.body.name || !req.body.phone || !req.body.dob || !req.body.time) {
+            return res.status(400).json({message: "Yêu cầu điền đầy đủ thông tin!"});
+        }
+        const service = await HealthService.findByPk(req.body.service_id);
         const booking = await Booking.create({
             user_id: req.user.id,
             service_id: req.body.service_id,
-            booking_user_id: req.body.booking_user_id,
-            booking_user_name: req.body.booking_user_name,
-            booking_user_phone: req.body.booking_user_phone,
+            name: req.body.name,
+            phone: req.body.phone,
             dob: req.body.dob,
             time: req.body.time,
             status: bookingStatus.PENDING,
-            charge_of: req.body.charge_of,
+            charge_of: service.type === serviceType.DOCTOR ? service.charge_of : null,
             created_at: new Date(),
             updated_at: new Date()
         }, {transaction: t});
-        await Notification.create({
-            content: "Bạn có 1 yêu cầu đặt lịch mới! từ " + req.body.booking_user_name,
-            to_staff_id: req.body.charge_of,
-            status: notificationStatus.UNREAD,
-            created_at: new Date(),
-            updated_at: new Date(),
-        })
         await t.commit();
         return res.status(200).json(booking);
     } catch (error) {
         await t.rollback();
+        console.log(error);
         return res.status(500).json(error);
     }
 };
@@ -70,22 +99,22 @@ const accept = async (req, res) => {
     try {
         const id = req.params.id;
         const booking = await Booking.findByPk(id);
-        if(!booking) {
+        if (!booking) {
             return res.status(404).json({message: "Booking not found"});
         }
-        if(booking.status !== bookingStatus.PENDING) {
+        if (booking.status !== bookingStatus.PENDING) {
             return res.status(400).json({message: "Booking not pending"});
         }
         booking.status = bookingStatus.ACCEPTED;
         booking.updated_at = new Date();
         await booking.save();
-        await Notification.create({
-            content: `Bạn có lịch khám khám mới từ ${booking.booking_user_name}`,
-            to_staff_id: booking.charge_of,
-            status: notificationStatus.UNREAD,
-            created_at: new Date(),
-            updated_at: new Date(),
-        })
+        // await Notification.create({
+        //     content: `Bạn có lịch khám khám mới từ ${booking.booking_user_name}`,
+        //     to_staff_id: booking.charge_of,
+        //     status: notificationStatus.UNREAD,
+        //     created_at: new Date(),
+        //     updated_at: new Date(),
+        // })
         await t.commit();
         return res.status(200).json(booking);
     } catch (error) {
@@ -99,10 +128,10 @@ const reject = async (req, res) => {
     try {
         const id = req.params.id;
         const booking = await Booking.findByPk(id);
-        if(!booking) {
+        if (!booking) {
             return res.status(404).json({message: "Booking not found"});
         }
-        if(booking.status !== bookingStatus.PENDING) {
+        if (booking.status !== bookingStatus.PENDING) {
             return res.status(400).json({message: "Booking already rejected"});
         }
         booking.status = bookingStatus.REJECTED;
@@ -128,14 +157,14 @@ const complete = async (req, res) => {
     try {
         const id = req.params.id;
         const booking = await Booking.findByPk(id);
-        if(!booking) {
+        if (!booking) {
             return res.status(404).json({message: "Booking not found"});
         }
-        if(booking.status !== bookingStatus.ACCEPTED) {
-            return res.status(400).json({message: "Booking not accepted"});
+        if (booking.status !== bookingStatus.STARTED) {
+            return res.status(400).json({message: "Booking not started yet"});
         }
         let date = new Date();
-        date.setHours(date.getHours() + 7); // Thêm 7 giờ để chuyển đổi sang múi giờ UTC+7
+        // date.setHours(date.getHours() + 7); // Thêm 7 giờ để chuyển đổi sang múi giờ UTC+7
 
         // Tính toán thời gian 30 phút sau và chuyển đổi sang múi giờ UTC+7
         let thirtyMinutesLater = new Date(date.getTime() - (30 * 60 * 1000)); // Thêm 30 phút
@@ -146,6 +175,7 @@ const complete = async (req, res) => {
             return res.status(400).json({message: "Booking not completed yet"});
         }
         booking.status = bookingStatus.COMPLETED;
+        booking.charge_of = req.staff.email;
         booking.updated_at = new Date();
         await booking.save();
         await t.commit();
@@ -162,27 +192,26 @@ const complete = async (req, res) => {
     }
 };
 
-const cancel = async (req, res) => {
+const start = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const id = req.params.id;
         const booking = await Booking.findByPk(id);
-        if(!booking) {
+        if (!booking) {
             return res.status(404).json({message: "Booking not found"});
         }
-        if(booking.status === bookingStatus.COMPLETED) {
-            return res.status(400).json({message: "Booking already completed"});
+        if (booking.status !== bookingStatus.ACCEPTED) {
+            return res.status(400).json({message: "Booking not accepted"});
         }
-        booking.status = bookingStatus.CANCELLED;
+        booking.status = bookingStatus.STARTED;
         booking.updated_at = new Date();
-        await booking.save();
-        await Notification.create({
-            content: `Lịch khám bệnh của ${booking.booking_user_name} bi huy`,
-            to_staff_id: booking.charge_of,
-            status: notificationStatus.UNREAD,
+        const diagnosis = await Diagnosis.create({
+            booking_id: booking.id,
             created_at: new Date(),
             updated_at: new Date(),
-        })
+        }, {transaction: t});
+        booking.diagnosis_id = diagnosis.id;
+        await booking.save();
         await t.commit();
         return res.status(200).json(booking);
     } catch (error) {
@@ -191,6 +220,65 @@ const cancel = async (req, res) => {
     }
 }
 
+
+const cancel = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const id = req.params.id;
+        const booking = await Booking.findByPk(id);
+        if (!booking) {
+            return res.status(404).json({message: "Booking not found"});
+        }
+        if (booking.status === bookingStatus.COMPLETED) {
+            return res.status(400).json({message: "Booking already completed"});
+        }
+        booking.status = bookingStatus.CANCELLED;
+        booking.updated_at = new Date();
+        await booking.save();
+        // await Notification.create({
+        //     content: `Lịch khám bệnh của ${booking.booking_user_name} bi huy`,
+        //     to_staff_id: booking.charge_of,
+        //     status: notificationStatus.UNREAD,
+        //     created_at: new Date(),
+        //     updated_at: new Date(),
+        // })
+        await t.commit();
+        return res.status(200).json(booking);
+    } catch (error) {
+        await t.rollback();
+        return res.status(500).json(error);
+    }
+}
+
+const detail = async (req, res) => {
+    try {
+    const id = req.params.id;
+    const booking = await Booking.findOne({
+        where: {
+            id: id
+        }
+    });
+    if (!booking) {
+        return res.status(404).json({message: "Booking not found"});
+    }
+    const service = await HealthService.findOne({
+        where: {
+            id: booking.service_id
+        }
+    });
+    booking.dataValues.service = service;
+    const diagnosis = await Diagnosis.findOne({
+        where: {
+            booking_id: booking.id
+        }
+    });
+    booking.dataValues.diagnosis = diagnosis;
+    return res.status(200).json(booking);
+    }
+    catch (error) {
+        return res.status(500).json(error);
+    }}
+
 module.exports = {
     getBookingByManager,
     getBookingByUser,
@@ -198,6 +286,8 @@ module.exports = {
     create,
     accept,
     reject,
+    start,
     complete,
     cancel,
+    detail,
 }

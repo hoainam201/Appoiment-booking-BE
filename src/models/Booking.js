@@ -24,18 +24,11 @@ const Booking = db.define(
                 key: "id",
             },
         },
-        booking_user_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: "users",
-                key: "id",
-            },
-        },
-        booking_user_name: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        booking_user_phone: {
+        phone: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -44,7 +37,7 @@ const Booking = db.define(
             allowNull: false,
         },
         time: {
-            type: DataTypes.TIME,
+            type: DataTypes.DATE,
             allowNull: false,
         },
         status: {
@@ -52,11 +45,38 @@ const Booking = db.define(
             allowNull: false,
         },
         charge_of: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             references: {
                 model: "facility_staffs",
-                key: "id",
+                key: "email",
             }
+        },
+        service_review_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: "service_reviews",
+                key: "id",
+            },
+        },
+        facility_review_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: "facility_reviews",
+                key: "id",
+            },
+        },
+        diagnosis_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: "diagnoses",
+                key: "id",
+            },
+        },
+        started_at: {
+            type: DataTypes.DATE,
+        },
+        completed_at: {
+            type: DataTypes.DATE,
         },
         created_at: {
             type: DataTypes.DATE,

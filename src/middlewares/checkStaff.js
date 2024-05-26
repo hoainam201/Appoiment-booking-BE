@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const FacilityStaff = require("../models/FacilityStaff");
+const {staffRole} = require("../utils/constants");
 
 
 module.exports = (role) =>{
@@ -11,16 +12,16 @@ module.exports = (role) =>{
         try {
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
             const staff = await FacilityStaff.findByPk(decoded.id);
-            if (!staff) {
+            if (!staff || staff.token !== token) {
                 return res.status(401).json({message: "Unauthorized"});
             }
-            if(role && staff.role !== role) {
+            if(role && staff.role !== role && staff.role !== staffRole.ADMIN) {
                 return res.status(403).json({message: "Forbidden"});
             }
             req.staff = staff;
             next();
         } catch (error) {
-            return res.status(401).json({message: "Unauthorized"});
+            return res.status(403).json({message: "Forbidden"});
         }
     }
 }

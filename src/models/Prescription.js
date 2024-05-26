@@ -1,31 +1,46 @@
 const db = require("../configs/db.config");
 const {DataTypes} = require("sequelize");
 
-const FacilityImage = db.define(
-    "facility_images", {
+const Prescriptions = db.define(
+    "prescriptions",
+    {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        facility_id: {
+        diagnosis_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             references: {
-                model: "facilities",
+                model: "diagnoses",
                 key: "id",
             },
         },
-        url: {
+        drug: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        quantity: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        instruction: {
+            type: DataTypes.STRING
         },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW
         },
+        updated_at: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        },
+    },
+    {
+        timestamps: false
     }
 );
 
-module.exports = FacilityImage;
+module.exports = Prescriptions;

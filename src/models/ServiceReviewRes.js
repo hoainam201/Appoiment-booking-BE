@@ -1,7 +1,7 @@
 const db = require("../configs/db.config");
 const {DataTypes} = require("sequelize");
 
-const RespornseFacilityReview = db.define("respornse_facility_reviews", {
+const ServiceReviewRes = db.define("service_reviews_res", {
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -11,19 +11,19 @@ const RespornseFacilityReview = db.define("respornse_facility_reviews", {
             key: "id",
         },
     },
-    facility_review_id: {
+    service_review_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         references: {
-            model: "facility_reviews",
+            model: "service_reviews",
             key: "id",
         },
     },
     is_like: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-    },
+    }
 });
 
-module.exports = RespornseFacilityReview;
+module.exports = ServiceReviewRes;

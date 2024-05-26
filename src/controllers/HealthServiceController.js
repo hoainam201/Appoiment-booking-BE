@@ -2,6 +2,7 @@ const HealthService = require("../models/HealthService");
 const {serviceType, bookingStatus} = require("../utils/constants");
 const sequelize = require("../configs/db.config");
 const Booking = require("../models/Booking");
+const HealthFacility = require("../models/HealthFacility");
 const { QueryTypes } = require('sequelize');
 
 const getAllDoctors = async (req, res) => {
@@ -12,15 +13,14 @@ const getAllDoctors = async (req, res) => {
             return res.status(404).json({message: "Page not found"});
         }
         const doctors = await HealthService.findAndCountAll({
-            offset: (page - 1) * 10,
-            limit: 20
-        },{
+            offset: (page - 1) * 20,
+            limit: 20,
             where: {
                 type: serviceType.DOCTOR,
             }
-        })
+        });
         res.status(200).json({
-            doctors: doctors,
+            doctor: doctors.rows,
             maxPage: maxPage
         });
     } catch (error) {
@@ -36,13 +36,13 @@ const getAllPackages = async (req, res) => {
             return res.status(404).json({message: "Page not found"});
         }
         const packages = await HealthService.findAndCountAll({
-            offset: (page - 1) * 10,
-            limit: 20
-        },{
+            offset: (page - 1) * 20,
+            limit: 20,
             where: {
                 type: serviceType.PACKAGE,
-            }
-        })
+            },
+            order: [['created_at', 'DESC']],
+        });
         res.status(200).json({
             packages: packages,
             maxPage: maxPage
@@ -110,6 +110,12 @@ const findById = async (req, res) => {
             status: bookingStatus.COMPLETED,
         }
     });
+    const facility = await HealthFacility.findOne({
+        where: {
+            id: service.facility_id
+        }
+    });
+    service.dataValues.facility = facility;
     service.dataValues.completed_booking_count = completedBookingCount;
     res.status(200).json(service);
 }

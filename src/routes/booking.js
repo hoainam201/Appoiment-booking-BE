@@ -9,9 +9,12 @@ router.post("/create", checkUser, bookingController.create);
 router.get("/get-booking-by-user", checkUser,bookingController.getBookingByUser);
 router.get("/get-booking-by-doctor", checkStaff(staffRole.DOCTOR),bookingController.getBookingByDoctor);
 router.get("/get-booking-by-manager", checkStaff(staffRole.MANAGER),bookingController.getBookingByManager);
-router.put("/accept", checkStaff(), bookingController.accept);
-router.put("/reject", checkStaff(), bookingController.reject);
-router.put("/cancel", checkUser, bookingController.cancel);
-router.put("/complete", checkStaff(staffRole.DOCTOR), bookingController.complete);
+router.put("/accept/:id", checkStaff(), bookingController.accept);
+router.put("/reject/:id", checkStaff(), bookingController.reject);
+router.put("/cancel/:id", checkUser, bookingController.cancel);
+router.put("/complete/:id", checkStaff(staffRole.DOCTOR), bookingController.complete);
+router.put("/start/:id", checkStaff(staffRole.DOCTOR), bookingController.start);
+router.get("/details/:id", checkUser, bookingController.detail);
+router.get("/get-details/:id", checkStaff(), bookingController.detail);
 
 module.exports = router;

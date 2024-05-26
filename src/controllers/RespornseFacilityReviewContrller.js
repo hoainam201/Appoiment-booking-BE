@@ -1,4 +1,4 @@
-const RFR = require("../models/RespornseFacilityReview");
+const RFR = require("../models/FacilityReviewRes");
 const sequelize = require("../configs/db.config");
 
 

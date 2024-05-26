@@ -44,6 +44,14 @@ const FacilityReview = sequelize.define("facility_reviews", {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
         },
+        facility_response_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: "facility_respornses",
+                key: "id",
+            }
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,

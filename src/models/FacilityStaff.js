@@ -17,11 +17,13 @@ const FacilityStaff = db.define(
         },
         facility_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             references: {
                 model: "health_facilities",
                 key: "id",
             },
+        },
+        speciality:{
+            type: DataTypes.INTEGER,
         },
         email: {
             type: DataTypes.STRING,
@@ -43,6 +45,9 @@ const FacilityStaff = db.define(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
+        },
+        token: {
+            type: DataTypes.STRING,
         },
         created_at: {
             type: DataTypes.DATE,

@@ -7,7 +7,7 @@ const fileUploader = require('../configs/cloudinary.config');
 router.get("/doctors", healthServiceController.getAllDoctors);
 router.get("/packages", healthServiceController.getAllPackages);
 router.get("/get-all-by-token", checkStaff(staffRole.MANAGER), healthServiceController.getAllByToken);
-router.get("/:id", healthServiceController.findById);
+router.get("/details/:id", healthServiceController.findById);
 router.post("/create", checkStaff(staffRole.MANAGER), fileUploader.single('file'),healthServiceController.create);
 router.put("/:id", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthServiceController.update);
 

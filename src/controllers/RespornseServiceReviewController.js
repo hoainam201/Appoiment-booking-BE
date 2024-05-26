@@ -1,4 +1,4 @@
-const RespornseServiceReview = require("../models/RespornseServiceReview");
+const RespornseServiceReview = require("../models/ServiceReviewRes");
 const sequelize = require("../configs/db.config");
 
 const create = async (req, res) => {

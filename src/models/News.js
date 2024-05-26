@@ -30,6 +30,9 @@ const News = sequelize.define("news", {
         type: DataTypes.BOOLEAN,
         allowNull: false,
     },
+    banner:{
+        type: DataTypes.STRING,
+    },
     content: {
         type: DataTypes.TEXT,
         allowNull: false,
