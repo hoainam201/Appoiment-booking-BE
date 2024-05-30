@@ -164,16 +164,6 @@ const complete = async (req, res) => {
             return res.status(400).json({message: "Booking not started yet"});
         }
         let date = new Date();
-        // date.setHours(date.getHours() + 7); // Thêm 7 giờ để chuyển đổi sang múi giờ UTC+7
-
-        // Tính toán thời gian 30 phút sau và chuyển đổi sang múi giờ UTC+7
-        let thirtyMinutesLater = new Date(date.getTime() - (30 * 60 * 1000)); // Thêm 30 phút
-
-        // So sánh thời gian hiện tại với thời gian 30 phút sau
-        if (booking.time < thirtyMinutesLater) {
-            // Thực hiện khi thời gian hiện tại nhỏ hơn thời gian 30 phút sau
-            return res.status(400).json({message: "Booking not completed yet"});
-        }
         booking.status = bookingStatus.COMPLETED;
         booking.charge_of = req.staff.email;
         booking.updated_at = new Date();
@@ -207,12 +197,14 @@ const start = async (req, res) => {
         booking.updated_at = new Date();
         const diagnosis = await Diagnosis.create({
             booking_id: booking.id,
+            description: "",
             created_at: new Date(),
             updated_at: new Date(),
         }, {transaction: t});
+        await t.commit();
+        booking.started_at = new Date();
         booking.diagnosis_id = diagnosis.id;
         await booking.save();
-        await t.commit();
         return res.status(200).json(booking);
     } catch (error) {
         await t.rollback();

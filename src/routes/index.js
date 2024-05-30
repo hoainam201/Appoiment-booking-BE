@@ -6,6 +6,8 @@ const news = require("./news");
 const staff = require("./staff");
 const serviceReview = require("./serviceReview");
 const facilityResporne = require("./facilityResponse");
+const diagnosis = require("./diagnosis");
+const prescription = require("./prescription");
 
 function route(app) {
     app.use("/user", user);
@@ -16,6 +18,8 @@ function route(app) {
     app.use("/staff", staff);
     app.use("/service-review", serviceReview);
     app.use("/facility-resprone", facilityResporne);
-};
+    app.use("/diagnosis", diagnosis);
+    app.use("/prescription", prescription);
+}
 
 module.exports = route;

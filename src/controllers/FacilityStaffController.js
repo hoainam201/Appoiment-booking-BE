@@ -226,7 +226,6 @@ const inactive = async (req, res) => {
 }
 
 const getRole = async (req, res) => {
-    console.log(req.staff);
     res.status(200).json(req.staff);
 }
 
@@ -242,6 +241,9 @@ const update = async (req, res) => {
             name: req.body.name,
             avatar: req.file ? req.file.path : staff.avatar,
             updated_at: new Date(),
+            speciality: req.body.speciality || null,
+        }, {
+            transaction: t
         });
         await t.commit();
         res.status(200).json({message: "Staff updated successfully"});
