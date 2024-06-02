@@ -40,7 +40,6 @@ const createDoctor = async (req, res) => {
         const password = await generateNewPassword();
         const facility_id = req.staff.facility_id ;
         const role = req.body.role;
-        console.log(name, email, password, facility_id, role);
         const passwordHash = await hashPassword(password);
         const staff = await FacilityStaff.create({
             name: name,
@@ -121,7 +120,6 @@ const createManager = async (req, res) => {
         const password = await generateNewPassword();
         const facility_id = req.staff.facility_id ;
         const role = staffRole.MANAGER;
-        console.log(name, email, password, facility_id, role);
         const passwordHash = await hashPassword(password);
         const staff = await FacilityStaff.create({
             name: name,
@@ -236,7 +234,6 @@ const update = async (req, res) => {
         if (!staff) {
             return res.status(404).json({message: "Staff not found"});
         }
-        console.log(req.body, req.file, staff.avatar);
         await staff.update({
             name: req.body.name,
             avatar: req.file ? req.file.path : staff.avatar,
@@ -266,9 +263,7 @@ const forgetPassword = async (req, res) => {
             return res.status(404).json({message: "Staff not found"});
         }
         const newPassword = await generateNewPassword();
-        console.log(newPassword);
         const hashedPassword = await crypt.hashPassword(newPassword);
-        console.log(hashedPassword);
         await staff.update({password: hashedPassword});
         await t.commit();
 

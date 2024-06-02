@@ -10,5 +10,6 @@ router.get("/get-all-by-token", checkStaff(staffRole.MANAGER), healthServiceCont
 router.get("/details/:id", healthServiceController.findById);
 router.post("/create", checkStaff(staffRole.MANAGER), fileUploader.single('file'),healthServiceController.create);
 router.put("/:id", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthServiceController.update);
+router.get("/facility/:id", healthServiceController.getAllByFacility);
 
 module.exports = router;

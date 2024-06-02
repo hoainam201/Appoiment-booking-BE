@@ -5,86 +5,114 @@ const HealthService = require("../models/HealthService");
 const sequelize = require("../configs/db.config");
 
 const create = async (req, res) => {
-    const t = await sequelize.transaction();
-    try {
-        const rating = req.body.rating;
-        const service_id = req.body.service_id;
-        const user_id = req.user.id;
-        const booking_id = req.body.booking_id ? req.body.booking_id : null;
-        const comment = req.body.comment ? req.body.comment : null;
-        if(!booking_id) {
-            return res.status(404).json({message: "Id không tồn tại"})
-        }
-        const booking = await Booking.findByPk(
-            booking_id
-        );
-        if (!booking ||booking.service_id !== service_id) {
-            return res.status(404).json({message: "Id không tồn tại"});
-        }
-        if (booking.user_id !== user_id) {
-            return res.status(404).json({message: "Bạn không có quyền tạo đánh giá này"});
-        }
-        if(booking.status !== bookingStatus.COMPLETED) {
-            return res.status(404).json({message: "Bạn chưa hoàn thành lịch khám"});
-        }
-        const serviceReview = await ServiceReview.create({
-            rating: rating,
-            service_id: service_id,
-            user_id: user_id,
-            booking_id: booking_id,
-            visible: newsStatus.SHOW,
-            comment: comment
-        }, {
-            transaction: t
-        });
-        const query = `SELECT AVG(rating) as rating FROM service_reviews WHERE service_id = ${service_id}`;
-        const data = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
-        const avg = (data[0].rating * 10) / 10;
-        await HealthService.update({rating: avg}, {where: {id: service_id}});
-        await t.commit();
-        res.status(201).json(serviceReview);
-    } catch (error) {
-        await t.rollback();
-        res.status(500).json({message: error.message});
+  const t = await sequelize.transaction();
+  try {
+    const rating = req.body.rating;
+    const service_id = req.body.service_id;
+    const user_id = req.user.id;
+    const booking_id = req.body.booking_id ? req.body.booking_id : null;
+    const comment = req.body.comment ? req.body.comment : null;
+    if (!booking_id) {
+      return res.status(404).json({message: "Id không tồn tại"})
     }
+    const booking = await Booking.findByPk(
+      booking_id
+    );
+    if (!booking || booking.service_id !== service_id) {
+      return res.status(404).json({message: "Id không tồn tại"});
+    }
+    if (booking.user_id !== user_id) {
+      return res.status(404).json({message: "Bạn không có quyền tạo đánh giá này"});
+    }
+    if (booking.status !== bookingStatus.COMPLETED) {
+      return res.status(404).json({message: "Bạn chưa hoàn thành lịch khám"});
+    }
+    const exist = await ServiceReview.findOne({
+      where: {
+        booking_id: booking_id,
+        user_id: user_id,
+      }
+    });
+    // if (exist) {
+    //   return res.status(404).json({message: "Đánh giá đã tồn tại"});
+    // }
+    const serviceReview = await ServiceReview.create({
+      rating: rating,
+      service_id: service_id,
+      user_id: user_id,
+      booking_id: booking_id,
+      visible: newsStatus.SHOW,
+      comment: comment
+    }, {
+      transaction: t
+    });
+    booking.service_review_id = serviceReview.id;
+    await booking.save({transaction: t});
+    const query = `SELECT AVG(rating) as rating
+                   FROM service_reviews
+                   WHERE service_id = ${service_id}`;
+    await t.commit();
+    const data = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+    const avg = (data[0].rating * 10) / 10;
+    const service = await HealthService.findByPk(service_id);
+    service.avg_rating = avg;
+    await service.save();
+    res.status(201).json(serviceReview);
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({message: error.message});
+  }
 }
 
 const update = async (req, res) => {
-    const t = await sequelize.transaction();
-    try {
-        if(!req.params.id) {
-            return res.status(404).json({message: "Id không tồn tại"})
-        }
-        const serviceReview = await ServiceReview.findByPk(req.params.id);
-        if (!serviceReview) {
-            return res.status(404).json({message: "Không tìm thấy review hợp lệ"});
-        }
-        await serviceReview.update({
-            rating: req.body.rating,
-            comment: req.body.comment,
-        }, {
-            transaction: t
-        });
-        const query = `SELECT AVG(rating) as rating FROM service_reviews WHERE service_id = ${serviceReview.service_id}`;
-        const data = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
-        const rating = (data[0].rating * 10) / 10;
-        await t.commit();
-        res.status(200).json(serviceReview);
-    } catch (error) {
-        await t.rollback();
-        res.status(500).json({message: error.message});
+  const t = await sequelize.transaction();
+  try {
+    if (!req.params.id) {
+      return res.status(404).json({message: "Id không tồn tại"})
     }
+    const serviceReview = await ServiceReview.findByPk(req.params.id);
+    if (!serviceReview) {
+      return res.status(404).json({message: "Không tìm thấy review hợp lệ"});
+    }
+    await serviceReview.update({
+      rating: req.body.rating,
+      comment: req.body.comment,
+    }, {
+      transaction: t
+    });
+    const query = `SELECT AVG(rating) as rating
+                   FROM service_reviews
+                   WHERE service_id = ${serviceReview.service_id}`;
+    const data = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+    const rating = (data[0].rating * 10) / 10;
+    await t.commit();
+    res.status(200).json(serviceReview);
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({message: error.message});
+  }
 }
 
 const getAllByService = async (req, res) => {
-    const query = `SELECT service_reviews.*, users.name FROM service_reviews LEFT JOIN users ON service_reviews.user_id = users.id WHERE service_id = ${req.params.id} LIMIT 10 OFFSET ${10 * (req.query.page - 1)}`;
-    const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
-    const total = await ServiceReview.count({where: {service_id: req.params.id}});
-    res.status(200).json({reviews: reviews, total: total});
+  const id = req.params.id;
+  if (!id) {
+    return res.status(404).json({message: "Id không tồn tại"})
+  }
+  const page = req.query.page ? req.query.page : 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  const query = `SELECT s.id, s.rating, s.comment, s.created_at, users.name
+                 FROM service_reviews s
+                          LEFT JOIN users ON s.user_id = users.id
+                 WHERE service_id = ${id} LIMIT 10
+                 OFFSET ${offset}`;
+  const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+  const total = await ServiceReview.count({where: {service_id: req.params.id}});
+  res.status(200).json({reviews: reviews, total: total});
 }
 
 module.exports = {
-    create,
-    update,
-    getAllByService
+  create,
+  update,
+  getAllByService
 }

@@ -5,7 +5,6 @@ const sequelize = require("../configs/db.config");
 const FacilityStaff = require("../models/FacilityStaff");
 const Booking = require("../models/Booking");
 const HealthService = require("../models/HealthService");
-const FacilityReview = require("../models/FacilityReview");
 const ServiceReview = require("../models/ServiceReview");
 const fileUploader = require("../configs/cloudinary.config");
 const {QueryTypes} = require("sequelize");
@@ -180,6 +179,12 @@ const getById = async (req, res) => {
         if (!healthFacility) {
             return res.status(404).json({message: "Không tìm thấy cơ sở y tế phù hợp"});
         }
+        const healthService = await HealthService.findAll({
+            where: {
+                facility_id: healthFacility.id
+            }
+        });
+        healthFacility.dataValues.services = healthService;
         res.status(200).json(healthFacility);
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -234,14 +239,6 @@ const getByAdmin = async (req, res) => {
             }
         });
         healthFacility.dataValues.services = services;
-        const reviews = await FacilityReview.count(
-            {
-                where: {
-                    facility_id: req.params.id
-                }
-            }
-        );
-        healthFacility.dataValues.reviews = reviews;
         const query = `select count(bookings.id)
                        from bookings
                                 join health_services on bookings.service_id = health_services.id

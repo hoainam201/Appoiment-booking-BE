@@ -14,7 +14,9 @@ router.put("/reject/:id", checkStaff(), bookingController.reject);
 router.put("/cancel/:id", checkUser, bookingController.cancel);
 router.put("/complete/:id", checkStaff(staffRole.DOCTOR), bookingController.complete);
 router.put("/start/:id", checkStaff(staffRole.DOCTOR), bookingController.start);
-router.get("/details/:id", checkUser, bookingController.detail);
-router.get("/get-details/:id", checkStaff(), bookingController.detail);
+router.get("/details/:id", checkUser, bookingController.details);
+router.get("/get-details/:id", checkStaff(), bookingController.details);
+router.put("/paid/:id", checkStaff(staffRole.MANAGER), bookingController.paid);
+router.get("/detail/:id", checkUser, bookingController.detailByUser);
 
 module.exports = router;

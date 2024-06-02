@@ -58,13 +58,6 @@ const Booking = db.define(
                 key: "id",
             },
         },
-        facility_review_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: "facility_reviews",
-                key: "id",
-            },
-        },
         diagnosis_id: {
             type: DataTypes.INTEGER,
             references: {
@@ -76,6 +69,17 @@ const Booking = db.define(
             type: DataTypes.DATE,
         },
         completed_at: {
+            type: DataTypes.DATE,
+        },
+        payment_method: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        payment_status: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
+        payment_at: {
             type: DataTypes.DATE,
         },
         created_at: {

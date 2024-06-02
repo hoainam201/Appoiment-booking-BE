@@ -15,11 +15,11 @@ const Notification = db.define(
         status: {
             type: DataTypes.INTEGER,
         },
-        to_staff_id: {
+        facility_id:{
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "facility_staffs",
+                model: "health_facilities",
                 key: "id",
             },
         },
