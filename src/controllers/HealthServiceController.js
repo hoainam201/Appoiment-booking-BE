@@ -8,7 +8,7 @@ const {QueryTypes} = require('sequelize');
 const getAllDoctors = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const maxPage = Math.ceil((await HealthService.count()) / 20);
+    const maxPage = Math.ceil((await HealthService.count()) / 20) - 1;
     if (page > maxPage) {
       return res.status(404).json({message: "Page not found"});
     }
@@ -31,7 +31,7 @@ const getAllDoctors = async (req, res) => {
 const getAllPackages = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const maxPage = Math.ceil((await HealthService.count()) / 20);
+    const maxPage = Math.ceil((await HealthService.count()) / 20) - 1;
     if (page > maxPage) {
       return res.status(404).json({message: "Page not found"});
     }

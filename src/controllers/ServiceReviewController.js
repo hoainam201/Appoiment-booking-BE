@@ -33,9 +33,9 @@ const create = async (req, res) => {
         user_id: user_id,
       }
     });
-    // if (exist) {
-    //   return res.status(404).json({message: "Đánh giá đã tồn tại"});
-    // }
+    if (exist) {
+      return res.status(404).json({message: "Đánh giá đã tồn tại"});
+    }
     const serviceReview = await ServiceReview.create({
       rating: rating,
       service_id: service_id,
@@ -45,6 +45,13 @@ const create = async (req, res) => {
       comment: comment
     }, {
       transaction: t
+    });
+    await Notification.create({
+      content: `Đánh giá ${booking.user_name} cho ${booking.service_name}`,
+      facility_id: booking.facility_id,
+      status: notificationStatus.UNREAD,
+      created_at: new Date(),
+      updated_at: new Date()
     });
     booking.service_review_id = serviceReview.id;
     await booking.save({transaction: t});
@@ -62,6 +69,18 @@ const create = async (req, res) => {
     await t.rollback();
     res.status(500).json({message: error.message});
   }
+}
+
+const get = async (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    return res.status(404).json({message: "Id không tồn tại"})
+  }
+  const serviceReview = await ServiceReview.findByPk(id);
+  if (!serviceReview) {
+    return res.status(404).json({message: "Không tìm thấy review hợp lệ"});
+  }
+  res.status(200).json(serviceReview);
 }
 
 const update = async (req, res) => {
@@ -111,8 +130,30 @@ const getAllByService = async (req, res) => {
   res.status(200).json({reviews: reviews, total: total});
 }
 
+const getAllByFacility = async (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    return res.status(404).json({message: "Id không tồn tại"})
+  }
+  const page = req.query.page ? req.query.page : 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  const query = `SELECT s.id, s.rating, s.comment, s.created_at, users.name
+                 FROM service_reviews s
+                          LEFT JOIN users ON s.user_id = users.id
+                 WHERE service_id in (select id from health_services where facility_id = ${id})
+                     limit 10
+                 offset ${offset}`;
+  const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+  const total = await sequelize.query(`select count(*) from service_reviews r join health_services h
+on r.service_id = h.id where facility_id = ${id}`, {type: sequelize.QueryTypes.SELECT});
+  res.status(200).json({reviews: reviews, total: total[0].count});
+}
+
 module.exports = {
   create,
   update,
-  getAllByService
+  getAllByService,
+  get,
+  getAllByFacility
 }

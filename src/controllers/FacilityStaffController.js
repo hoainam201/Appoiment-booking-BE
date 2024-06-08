@@ -162,6 +162,7 @@ const login = async (req, res) => {
         const staff = await FacilityStaff.scope("withPassword").findOne({
             where: {
                 email: email,
+                active: true,
             }
         });
         // console.log(staff);

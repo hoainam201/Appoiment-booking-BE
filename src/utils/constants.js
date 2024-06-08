@@ -95,7 +95,6 @@ const bookingStatus = {
     COMPLETED: 3,
     CANCELLED: 4,
     STARTED: 5,
-    PAID: 6,
 };
 
 const newsStatus = {

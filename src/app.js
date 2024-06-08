@@ -5,6 +5,7 @@ const socketIo = require('socket.io');
 const http = require('http');
 require("dotenv").config();
 const port = process.env.PORT || 5000;
+const scheduler = require('./utils/scheduler');
 
 
 const cors = require("cors");
@@ -47,6 +48,10 @@ route(app);
 app.get("/", (req, res) => {
     res.send("<h1>Hello World</h1>");
 });
+
+scheduler.scheduleUpdate();
+
+
 server.listen(port, () => {
     console.log(`server running on port: http://localhost:${port}`);
 });

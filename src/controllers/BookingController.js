@@ -85,6 +85,13 @@ const create = async (req, res) => {
       created_at: new Date(),
       updated_at: new Date()
     }, {transaction: t});
+    await Notification.create({
+      content: `Yêu cầu ${req.body.name} đặt lịch ${service.name}`,
+      facility_id: service.facility_id,
+      status: notificationStatus.UNREAD,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
     await t.commit();
     return res.status(200).json(booking);
   } catch (error) {
@@ -108,13 +115,6 @@ const accept = async (req, res) => {
     booking.status = bookingStatus.ACCEPTED;
     booking.updated_at = new Date();
     await booking.save();
-    // await Notification.create({
-    //     content: `Bạn có lịch khám khám mới từ ${booking.booking_user_name}`,
-    //     to_staff_id: booking.charge_of,
-    //     status: notificationStatus.UNREAD,
-    //     created_at: new Date(),
-    //     updated_at: new Date(),
-    // })
     await t.commit();
     return res.status(200).json(booking);
   } catch (error) {
@@ -144,7 +144,7 @@ const reject = async (req, res) => {
       subject: "HealthPro",
       text: "Yêu cầu khám của bạn đã bị từ chối!",
     }
-    // await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
     return res.status(200).json(booking);
   } catch (error) {
     await t.rollback();
@@ -166,15 +166,10 @@ const complete = async (req, res) => {
     let date = new Date();
     booking.status = bookingStatus.COMPLETED;
     booking.charge_of = req.staff.email;
+    booking.completed_at = date;
     booking.updated_at = new Date();
     await booking.save();
     await t.commit();
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: 'nam.nh194628@sis.hust.edu.vn',
-      subject: "HealthPro",
-      text: "Ca khám bệnh của bạn đã kết thúc",
-    }
     return res.status(200).json(booking);
   } catch (error) {
     await t.rollback();

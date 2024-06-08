@@ -7,6 +7,7 @@ const staff = require("./staff");
 const serviceReview = require("./serviceReview");
 const diagnosis = require("./diagnosis");
 const prescription = require("./prescription");
+const notification = require("./notification");
 
 function route(app) {
   app.use("/user", user);
@@ -18,6 +19,7 @@ function route(app) {
   app.use("/service-review", serviceReview);
   app.use("/diagnosis", diagnosis);
   app.use("/prescription", prescription);
+  app.use("/notification", notification);
 }
 
 module.exports = route;

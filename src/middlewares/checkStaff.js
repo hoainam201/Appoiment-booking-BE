@@ -12,7 +12,7 @@ module.exports = (role) =>{
         try {
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
             const staff = await FacilityStaff.findByPk(decoded.id);
-            if (!staff || staff.token !== token) {
+            if (!staff || staff.token !== token || !staff.active) {
                 return res.status(401).json({message: "Unauthorized"});
             }
             if(role && staff.role !== role && staff.role !== staffRole.ADMIN) {
