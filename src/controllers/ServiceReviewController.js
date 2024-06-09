@@ -120,11 +120,53 @@ const getAllByService = async (req, res) => {
   const page = req.query.page ? req.query.page : 1;
   const limit = 10;
   const offset = (page - 1) * limit;
-  const query = `SELECT s.id, s.rating, s.comment, s.created_at, users.name
+  const query = `SELECT s.id, s.rating, s.comment, s.created_at, u.name, COUNT(f.service_review_id) AS favourites_count
                  FROM service_reviews s
-                          LEFT JOIN users ON s.user_id = users.id
-                 WHERE service_id = ${id} LIMIT 10
-                 OFFSET ${offset}`;
+                          LEFT JOIN users u ON s.user_id = u.id
+                          LEFT JOIN favourites f ON s.id = f.service_review_id
+                 WHERE s.service_id = ${id}
+                 GROUP BY s.id, s.rating, s.comment, s.created_at, u.name
+                     LIMIT 10 OFFSET ${offset};`;
+  const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+  const total = await ServiceReview.count({where: {service_id: req.params.id}});
+  res.status(200).json({reviews: reviews, total: total});
+}
+
+const getAllByUser = async (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    return res.status(404).json({message: "Id không tồn tại"})
+  }
+  const page = req.query.page ? req.query.page : 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  const user_id = req.user.id
+  const query = `SELECT
+                     s.id,
+                     s.rating,
+                     s.comment,
+                     s.created_at,
+                     u.name,
+                     COUNT(f.service_review_id) AS favourites_count,
+                     CASE
+                         WHEN EXISTS (
+                             SELECT 1
+                             FROM favourites f2
+                             WHERE f2.service_review_id = s.id AND f2.user_id = ${user_id}
+                         ) THEN true
+                         ELSE false
+                         END AS is_favourited
+                 FROM
+                     service_reviews s
+                         LEFT JOIN
+                     users u ON s.user_id = u.id
+                         LEFT JOIN
+                     favourites f ON s.id = f.service_review_id
+                 WHERE
+                     s.service_id = ${id}
+                 GROUP BY
+                     s.id, s.rating, s.comment, s.created_at, u.name
+                     LIMIT 10 OFFSET ${offset};`;
   const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
   const total = await ServiceReview.count({where: {service_id: req.params.id}});
   res.status(200).json({reviews: reviews, total: total});
@@ -138,22 +180,67 @@ const getAllByFacility = async (req, res) => {
   const page = req.query.page ? req.query.page : 1;
   const limit = 10;
   const offset = (page - 1) * limit;
-  const query = `SELECT s.id, s.rating, s.comment, s.created_at, users.name
+  const query = `SELECT s.id, s.rating, s.comment, s.created_at, u.name, COUNT(f.service_review_id) AS favourites_count
                  FROM service_reviews s
-                          LEFT JOIN users ON s.user_id = users.id
-                 WHERE service_id in (select id from health_services where facility_id = ${id})
-                     limit 10
-                 offset ${offset}`;
+                          LEFT JOIN users u ON s.user_id = u.id
+                          LEFT JOIN favourites f ON s.id = f.service_review_id
+                 WHERE s.service_id in (select id from health_services where facility_id = ${id})
+                 GROUP BY s.id, s.rating, s.comment, s.created_at, u.name
+                     LIMIT 10 OFFSET ${offset};`;
+  const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
+  const total = await sequelize.query(`select count(*) from service_reviews r join health_services h
+on r.service_id = h.id where facility_id = ${id}`, {type: sequelize.QueryTypes.SELECT});
+  res.status(200).json({reviews: reviews, total: total[0].count});
+}
+const getAllByFacilityAndUser = async (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    return res.status(404).json({message: "Id không tồn tại"})
+  }
+  const page = req.query.page ? req.query.page : 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  const user_id = req.user.id
+  const query = `SELECT
+                     s.id,
+                     s.rating,
+                     s.comment,
+                     s.created_at,
+                     u.name,
+                     COUNT(f.service_review_id) AS favourites_count,
+                     CASE
+                         WHEN EXISTS (
+                             SELECT 1
+                             FROM favourites f2
+                             WHERE f2.service_review_id = s.id AND f2.user_id = ${user_id}
+                         ) THEN true
+                         ELSE false
+                         END AS is_favourited
+                 FROM
+                     service_reviews s
+                         LEFT JOIN
+                     users u ON s.user_id = u.id
+                         LEFT JOIN
+                     favourites f ON s.id = f.service_review_id
+                 WHERE
+                     s.service_id in (select id from health_services where facility_id = ${id})
+                 GROUP BY
+                     s.id, s.rating, s.comment, s.created_at, u.name
+                     LIMIT 10 OFFSET ${offset};`;
   const reviews = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
   const total = await sequelize.query(`select count(*) from service_reviews r join health_services h
 on r.service_id = h.id where facility_id = ${id}`, {type: sequelize.QueryTypes.SELECT});
   res.status(200).json({reviews: reviews, total: total[0].count});
 }
 
+
+
 module.exports = {
   create,
   update,
   getAllByService,
   get,
-  getAllByFacility
+  getAllByFacility,
+  getAllByFacilityAndUser,
+  getAllByUser,
 }

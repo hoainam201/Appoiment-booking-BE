@@ -21,6 +21,7 @@ router.get("/get-by-token", checkStaff(staffRole.MANAGER), healthFacilityControl
 router.get("/get-all", healthFacilityController.getAllNotPaged);
 // router.patch("/inactive/:id", checkStaff(staffRole.MANAGER), healthFacilityController.inactive);
 router.put("/update", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthFacilityController.update);
+router.post("/search", healthFacilityController.search);
 router.get("/", healthFacilityController.getAll);
 
 module.exports = router;

@@ -7,7 +7,7 @@ const Booking = require("../models/Booking");
 const HealthService = require("../models/HealthService");
 const ServiceReview = require("../models/ServiceReview");
 const fileUploader = require("../configs/cloudinary.config");
-const {QueryTypes} = require("sequelize");
+const {QueryTypes, Sequelize} = require("sequelize");
 
 const create = async (req, res) => {
     const t = await sequelize.transaction();
@@ -62,6 +62,55 @@ const getAll = async (req, res) => {
         });
         res.status(200).json({
             healthFacility: healthFacility,
+            maxPage: maxPage
+        });
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+
+const search = async (req, res) => {
+    try {
+        const name = req.body.name ? req.body.name : null;
+        const specialities = req.body.speciality ? req.body.speciality : null;
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const maxPage = Math.ceil((await HealthFacility.count()) / 20);
+        if (page > maxPage) {
+            return res.status(404).json({message: "Page not found"});
+        }
+        const address = req.body.address ? req.body.address : null;
+        const query = {};
+        if (name) {
+            query.name = {
+                [Op.iLike]: `%${name}%`
+            }
+        }
+        if (specialities) {
+            query.specialities = {
+              [Op.or]: [
+                { [Op.eq]: specialities },
+                { [Op.eq]: '0' }
+              ]
+            }
+        }
+        if (address) {
+            query.address = {
+                [Op.iLike]: `%${address}%`
+            }
+        }
+        query.active = {
+            [Op.eq]: true
+        }
+        const healthFacility = await HealthFacility.findAndCountAll({
+            where: query,
+            offset: (page - 1) * 20,
+            limit: 20
+        });
+        if (!healthFacility) {
+            return res.status(404).json({message: "Not found"});
+        }
+        res.status(200).json({
+            healthFacility: healthFacility.rows,
             maxPage: maxPage
         });
     } catch (error) {
@@ -264,4 +313,5 @@ module.exports = {
     getByToken,
     getAllNotPaged,
     getByAdmin,
+    search,
 }

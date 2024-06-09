@@ -11,5 +11,6 @@ router.get("/details/:id", healthServiceController.findById);
 router.post("/create", checkStaff(staffRole.MANAGER), fileUploader.single('file'),healthServiceController.create);
 router.put("/:id", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthServiceController.update);
 router.get("/facility/:id", healthServiceController.getAllByFacility);
+router.post("/search", healthServiceController.search);
 
 module.exports = router;

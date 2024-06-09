@@ -4,6 +4,7 @@ const sequelize = require("../configs/db.config");
 const Booking = require("../models/Booking");
 const HealthFacility = require("../models/HealthFacility");
 const {QueryTypes} = require('sequelize');
+const {Op} = require("sequelize");
 
 const getAllDoctors = async (req, res) => {
   try {
@@ -45,6 +46,75 @@ const getAllPackages = async (req, res) => {
     });
     res.status(200).json({
       packages: packages,
+      maxPage: maxPage
+    });
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+}
+
+const search = async (req, res) => {
+  try {
+    const name = req.body.name ? req.body.name : null;
+    const type = req.body.type ? req.body.type : null;
+    const speciality = req.body.speciality ? req.body.speciality : null;
+    const page = parseInt(req.body.page) || 1;
+    const maxPage = Math.ceil((await HealthService.count()) / 20) - 1;
+    const sort = req.body.sort ? req.body.sort : '1';
+    if (page > maxPage) {
+      return res.status(404).json({message: "Page not found"});
+    }
+    const query = {};
+    let order = ['created_at','ASC'];
+    switch (sort) {
+      case '1':
+        order = ['created_at','DESC'];
+        break;
+      case '2':
+        order = ['created_at','ASC'];
+        break;
+      case '3':
+        order = ['avg_rating','ASC'];
+        break;
+      case '4':
+        order = ['avg_rating','DESC'];
+        break;
+      case '5':
+        order = ['fee','ASC'];
+        break;
+      case '6':
+        order = ['fee','DESC'];
+        break;
+      default:
+        order = ['created_at','DESC'];
+        break;
+    }
+    query.active = {
+      [Op.eq]: true
+    }
+    if (name) {
+      query.name = {
+        [Op.iLike]: `%${name}%`
+      }
+    }
+    if (type) {
+      query.type = {
+        [Op.eq]: type
+      }
+    }
+    if (speciality) {
+      query.speciality = {
+        [Op.eq]: speciality
+      }
+    }
+    const services = await HealthService.findAndCountAll({
+      offset: (page - 1) * 20,
+      limit: 20,
+      where: query,
+      order: [order],
+    });
+    res.status(200).json({
+      services: services.rows,
       maxPage: maxPage
     });
   } catch (error) {
@@ -196,4 +266,5 @@ module.exports = {
   findById,
   getAllByToken,
   getAllByFacility,
+  search,
 }

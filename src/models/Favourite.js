@@ -1,7 +1,7 @@
 const db = require("../configs/db.config");
 const {DataTypes} = require("sequelize");
 
-const ServiceReviewRes = db.define("service_reviews_res", {
+const Favourite = db.define("favourites", {
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -20,10 +20,6 @@ const ServiceReviewRes = db.define("service_reviews_res", {
             key: "id",
         },
     },
-    is_like: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-    }
 });
 
-module.exports = ServiceReviewRes;
+module.exports = Favourite;
