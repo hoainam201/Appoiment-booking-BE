@@ -1,4 +1,4 @@
-const healthServiceController = require("../controllers/healthServiceController");
+const healthServiceController = require("../controllers/HealthServiceController");
 const router = require("express").Router();
 const checkStaff = require("../middlewares/checkStaff");
 const {staffRole} = require("../utils/constants");
