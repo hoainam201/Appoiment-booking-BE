@@ -40,7 +40,9 @@ const createDoctor = async (req, res) => {
         const password = await generateNewPassword();
         const facility_id = req.staff.facility_id ;
         const role = req.body.role;
+        const speciality = role === staffRole.DOCTOR ? req.body.speciality : null;
         const passwordHash = await hashPassword(password);
+        console.log(req.body);
         const staff = await FacilityStaff.create({
             name: name,
             email: email,
@@ -50,7 +52,8 @@ const createDoctor = async (req, res) => {
             active: true,
             created_at: new Date(),
             updated_at: new Date(),
-            role: role
+            role: role,
+            speciality: speciality,
         }, {
             transaction: t,
         });

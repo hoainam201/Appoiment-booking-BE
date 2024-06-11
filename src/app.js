@@ -6,13 +6,25 @@ const http = require('http');
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const scheduler = require('./utils/scheduler');
+const client = require('prom-client');
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ timeout: 5000 });
 
+const counter = new client.Counter({
+  name: 'node_request_operations_total',
+  help: 'The total number of processed requests'
+});
 
 const cors = require("cors");
 
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: true,
+});
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
 });
 
 app.post('/create-room', async (req, res) => {
