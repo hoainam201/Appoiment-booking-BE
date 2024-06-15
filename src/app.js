@@ -9,6 +9,7 @@ const scheduler = require('./utils/scheduler');
 const client = require('prom-client');
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics({ timeout: 5000 });
+const prometheusApiMetrics = require('prometheus-api-metrics');
 
 const counter = new client.Counter({
   name: 'node_request_operations_total',
@@ -27,24 +28,19 @@ app.get('/metrics', async (req, res) => {
   res.end(await client.register.metrics());
 });
 
-app.post('/create-room', async (req, res) => {
+// Middleware để đếm số lượng requests
+app.use((req, res, next) => {
+  counter.inc();
+  next();
+});
+
+// Endpoint để lấy metrics dưới dạng JSON
+app.get('/metrics-json', async (req, res) => {
   try {
-    const response = await axios.post('https://api.daily.co/v1/rooms', {
-      properties: {
-        exp: 0, // Thời gian sống của phòng
-        is_private: false, // Phòng không riêng tư
-        enable_chat: true, // Cho phép chat trong phòng
-      },
-      name: req.body.roomID // Tên phòng sẽ là RoomID
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DAILY_API_KEY}`
-      }
-    });
-    res.json(response.data);
+    const metrics = await client.register.getMetricsAsJSON();
+    res.json(metrics);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
