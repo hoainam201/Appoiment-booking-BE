@@ -12,5 +12,6 @@ router.post("/create", checkStaff(staffRole.MANAGER), fileUploader.single('file'
 router.put("/:id", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthServiceController.update);
 router.get("/facility/:id", healthServiceController.getAllByFacility);
 router.post("/search", healthServiceController.search);
+router.put("/change-status/:id", checkStaff(staffRole.MANAGER), healthServiceController.changeStatus);
 
 module.exports = router;

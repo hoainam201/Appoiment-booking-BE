@@ -258,6 +258,26 @@ const getAllByFacility = async (req, res) => {
   }
 }
 
+const changeStatus = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const id = req.params.id;
+    const service = await HealthService.findByPk(id);
+    if (!service) {
+      return res.status(404).json({message: "Health service not found"});
+    }
+    service.active = !service.active;
+    service.updated_by = req.staff.email;
+    service.updated_at = new Date();
+    await service.save({transaction: t});
+    await t.commit();
+    res.status(200).json({message: "Health service updated"});
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({message: error.message});
+  }
+}
+
 module.exports = {
   getAllDoctors,
   getAllPackages,
@@ -267,4 +287,5 @@ module.exports = {
   getAllByToken,
   getAllByFacility,
   search,
+  changeStatus,
 }

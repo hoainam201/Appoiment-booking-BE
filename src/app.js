@@ -62,6 +62,7 @@ app.get("/", (req, res) => {
 });
 
 scheduler.scheduleUpdate();
+scheduler.scheduleEmail();
 
 
 server.listen(port, () => {
