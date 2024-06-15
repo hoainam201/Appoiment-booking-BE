@@ -9,7 +9,6 @@ const scheduler = require('./utils/scheduler');
 const client = require('prom-client');
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics({ timeout: 5000 });
-const prometheusApiMetrics = require('prometheus-api-metrics');
 
 const counter = new client.Counter({
   name: 'node_request_operations_total',
