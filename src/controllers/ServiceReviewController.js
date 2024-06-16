@@ -251,6 +251,8 @@ const ratingByService = async (req, res) => {
       raw: true
     });
 
+    const totalReviews = await ServiceReview.count({where: {service_id: serviceId}});
+
     // Tạo một đối tượng để lưu trữ số lượng rating cho từng mốc
     const ratingMap = {};
     ratingCounts.forEach(item => {
@@ -260,7 +262,8 @@ const ratingByService = async (req, res) => {
     // Tạo mảng kết quả cuối cùng, đảm bảo bao gồm cả các mốc chưa có
     const normalizedRatingCounts = allRatings.map(rating => ({
       rating: rating,
-      count: ratingMap[rating] || 0
+      count: ratingMap[rating] || 0,
+      percent: totalReviews > 0 ? ((ratingMap[rating] || 0) / totalReviews) * 100 : 0
     }));
 
     res.status(200).json(normalizedRatingCounts);
