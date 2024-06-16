@@ -8,6 +8,7 @@ const fileUploader = require('../configs/cloudinary.config');
 router.post("/", checkStaff(staffRole.DOCTOR), fileUploader.single('file'), newsController.create);
 router.get("/", newsController.getAll);
 router.get("/get-by-doctor", checkStaff(staffRole.DOCTOR), newsController.getByDocId);
+router.get("/latest", newsController.getLatest);
 router.get("/:id", newsController.getById);
 router.put("/:id", checkStaff(staffRole.DOCTOR), fileUploader.single("file"),  newsController.update);
 router.patch("/hide/:id", newsController.hide);

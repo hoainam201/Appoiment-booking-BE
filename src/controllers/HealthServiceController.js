@@ -5,6 +5,8 @@ const Booking = require("../models/Booking");
 const HealthFacility = require("../models/HealthFacility");
 const {QueryTypes} = require('sequelize');
 const {Op} = require("sequelize");
+const ServiceReview = require("../models/ServiceReview");
+const _ = require('lodash');
 
 const getAllDoctors = async (req, res) => {
   try {
@@ -278,6 +280,117 @@ const changeStatus = async (req, res) => {
   }
 }
 
+
+const getCollaborativeFilteringRecommendations = async (req, res) => {
+  const serviceType = req.params.type;
+  const userId = req.user.id;
+  const bookings = await Booking.findAll();
+
+  // Tạo một ma trận booking
+  const userBookings = {};
+  bookings.forEach((booking) => {
+    if (!userBookings[booking.user_id]) {
+      userBookings[booking.user_id] = {};
+    }
+    userBookings[booking.user_id][booking.service_id] = true;
+  });
+
+  // Lấy các dịch vụ theo loại
+  const services = await HealthService.findAll({
+    where: {
+      type: serviceType,
+    },
+  });
+
+  // Tính toán điểm tương đồng giữa các người dùng
+  const userSimilarity = {};
+  Object.keys(userBookings).forEach((user) => {
+    userSimilarity[user] = {};
+    Object.keys(userBookings).forEach((otherUser) => {
+      if (user !== otherUser) {
+        const commonBookings = Object.keys(userBookings[user]).filter(
+          (serviceId) => userBookings[otherUser][serviceId]
+        );
+
+        userSimilarity[user][otherUser] = commonBookings.length;
+      }
+    });
+  });
+
+  // Lấy các dịch vụ chưa được đặt bởi người dùng
+  const servicesToRecommend = services
+    .filter(
+      (service) =>
+        !userBookings[userId] || !userBookings[userId][service.id]
+    )
+    .map((service) => {
+      const totalSimilarity = Object.keys(userSimilarity[userId] || {})
+        .map((otherUserId) => ({
+          similarity: userSimilarity[userId][otherUserId],
+          hasBooked: userBookings[otherUserId] && userBookings[otherUserId][service.id],
+        }))
+        .filter((pair) => pair.hasBooked)
+        .reduce(
+          (total, pair) => ({
+            totalSim: total.totalSim + pair.similarity,
+            totalBooking: total.totalBooking + pair.similarity,
+          }),
+          { totalSim: 0, totalBooking: 0 }
+        );
+
+      return {
+        serviceId: service.id,
+        predictedInterest:
+          totalSimilarity.totalSim !== 0
+            ? totalSimilarity.totalBooking / totalSimilarity.totalSim
+            : 0,
+      };
+    })
+    .sort((a, b) => b.predictedInterest - a.predictedInterest);
+
+  // return servicesToRecommend;
+  const servicesC = await HealthService.findAll({
+    where: {
+      id: {
+        [Op.in]: servicesToRecommend.slice(0, 5).map((service) => service.serviceId)
+      }
+    }
+  });
+  return res.status(200).json(servicesC);
+};
+
+const getTopDoctors = async (req, res) => {
+  try {
+    const top = await HealthService.findAll({
+      where: {
+        active: true,
+        type: serviceType.DOCTOR
+      },
+      order: [['avg_rating', 'DESC']],
+      limit: 5
+    });
+    return res.status(200).json(top);
+  } catch (error) {
+    return res.status(500).json({message: error.message});
+  }
+}
+
+const getTopPackages = async (req, res) => {
+  try {
+    const top = await HealthService.findAll({
+      where: {
+        active: true,
+        type: serviceType.PACKAGE
+      },
+      order: [['avg_rating', 'DESC']],
+      limit: 5
+    });
+    return res.status(200).json(top);
+  } catch (error) {
+    return res.status(500).json({message: error.message});
+  }
+}
+
 module.exports = {
   getAllDoctors,
   getAllPackages,
@@ -288,4 +401,7 @@ module.exports = {
   getAllByFacility,
   search,
   changeStatus,
+  getCollaborativeFilteringRecommendations,
+  getTopDoctors,
+  getTopPackages
 }

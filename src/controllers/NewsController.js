@@ -144,6 +144,24 @@ const getByDocId = async (req, res) => {
   }
 }
 
+const getLatest = async (req, res) => {
+  try {
+    const news = await News.findAll({
+      limit: 5,
+      where: {
+        status: {
+          [Op.eq]: newsStatus.SHOW
+        }
+      },
+      order: [['created_at', 'DESC']],
+    });
+    return res.status(200).json(news);
+  }
+  catch (error) {
+    return res.status(500).json(error);
+  }
+}
+
 module.exports = {
   create,
   update,
@@ -151,5 +169,6 @@ module.exports = {
   show,
   getAll,
   getById,
-  getByDocId
+  getByDocId,
+  getLatest
 }
