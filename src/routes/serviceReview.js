@@ -10,5 +10,6 @@ router.put("/update/:id", checkUser, ServiceReviewController.update);
 router.get("/facility/:id", ServiceReviewController.getAllByFacility);
 router.get("/facility/user/:id", checkUser, ServiceReviewController.getAllByFacilityAndUser);
 router.get("/service/user/:id", checkUser, ServiceReviewController.getAllByUser);
+router.get("/rating/:id", ServiceReviewController.ratingByService);
 
 module.exports = router;
