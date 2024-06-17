@@ -349,6 +349,6 @@ module.exports = {
   getAllNotPaged,
   getByAdmin,
   search,
-  getTopHealthFacilities
+  getTopHealthFacilities,
   active,
 }
