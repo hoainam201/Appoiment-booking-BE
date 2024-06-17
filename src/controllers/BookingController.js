@@ -8,6 +8,7 @@ const transporter = require("../configs/transporter.config");
 const HealthService = require("../models/HealthService");
 const Diagnosis = require("../models/Diagnosis");
 const Prescription = require("../models/Prescription");
+const User = require("../models/User");
 const HealthFacility = require("../models/HealthFacility");
 
 const getBookingByUser = async (req, res) => {
