@@ -15,7 +15,7 @@ const updateAvgRating = async () => {
       FROM (
         SELECT facility_id, AVG(avg_rating) as avg_rating
         FROM health_services
-        WHERE active = true
+        WHERE active = true and avg_rating != 0
         GROUP BY facility_id
       ) AS subquery
       WHERE hf.id = subquery.facility_id;
