@@ -318,7 +318,7 @@ const getCollaborativeFilteringRecommendations = async (req, res) => {
   });
 
   // Lấy các dịch vụ chưa được đặt bởi người dùng
-  const servicesToRecommend = services
+  let servicesToRecommend = services
     .filter(
       (service) =>
         !userBookings[userId] || !userBookings[userId][service.id]
@@ -348,15 +348,25 @@ const getCollaborativeFilteringRecommendations = async (req, res) => {
     })
     .sort((a, b) => b.predictedInterest - a.predictedInterest);
 
-  // return servicesToRecommend;
-  const servicesC = await HealthService.findAll({
-    where: {
-      id: {
-        [Op.in]: servicesToRecommend.slice(0, 5).map((service) => service.serviceId)
-      }
-    }
-  });
-  return res.status(200).json(servicesC);
+  if (servicesToRecommend.length === 0) {
+    servicesToRecommend = services
+      .map((service) => ({
+        serviceId: service.id,
+        predictedInterest: 0, // hoặc giá trị mặc định khác nếu cần
+      }))
+      .sort(() => 0.5 - Math.random()) // sắp xếp ngẫu nhiên
+      .slice(0, 5); // Lấy 5 dịch vụ đầu tiên
+  }
+
+  return res.status(200).json(servicesToRecommend);
+  // const servicesC = await HealthService.findAll({
+  //   where: {
+  //     id: {
+  //       [Op.in]: servicesToRecommend.slice(0, 5).map((service) => service.serviceId)
+  //     }
+  //   }
+  // });
+  // return res.status(200).json(servicesC);
 };
 
 const getTopDoctors = async (req, res) => {
