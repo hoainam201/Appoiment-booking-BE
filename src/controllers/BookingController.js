@@ -75,6 +75,20 @@ const create = async (req, res) => {
       return res.status(400).json({message: "Yêu cầu điền đầy đủ thông tin!"});
     }
     const service = await HealthService.findByPk(req.body.service_id);
+    if (!service) {
+      return res.status(404).json({message: "Không tìm thấy dịch vu hợp lệ"});
+    }
+    if (service.status === 0) {
+      return res.status(400).json({message: "Dịch vu hợp lệ đang đóng"});
+    }
+    const conflict = await Booking.findOne({
+      where: {
+        time: req.body.time
+      }
+    });
+    if (conflict) {
+      return res.status(400).json({message: "Bạn có lịch trong thời gian đặt!"});
+    }
     const booking = await Booking.create({
       user_id: req.user.id,
       service_id: req.body.service_id,
