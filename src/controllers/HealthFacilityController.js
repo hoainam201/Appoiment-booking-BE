@@ -319,6 +319,26 @@ const getTopHealthFacilities = async (req, res) => {
   }
 }
 
+const active = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const id = req.params.id;
+    const healthFacility = await HealthFacility.findByPk(id);
+    if (!healthFacility) {
+      return res.status(404).json({message: "Health facility not found"});
+    }
+    healthFacility.active = !healthFacility.active;
+    healthFacility.updated_by = req.staff.email;
+    healthFacility.updated_at = new Date();
+    await healthFacility.save({transaction: t});
+    await t.commit();
+    res.status(200).json({message: "Health facility updated"});
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({message: error.message});
+  }
+}
+
 module.exports = {
   create,
   getAll,
@@ -330,4 +350,5 @@ module.exports = {
   getByAdmin,
   search,
   getTopHealthFacilities
+  active,
 }

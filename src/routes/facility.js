@@ -23,6 +23,7 @@ router.get("/get-all", healthFacilityController.getAllNotPaged);
 router.put("/update", checkStaff(staffRole.MANAGER), fileUploader.single('file'), healthFacilityController.update);
 router.post("/search", healthFacilityController.search);
 router.get("/top-health-facilities", healthFacilityController.getTopHealthFacilities);
+router.put("/change-status/:id", checkStaff(staffRole.MANAGER), healthFacilityController.active);
 router.get("/", healthFacilityController.getAll);
 
 module.exports = router;
