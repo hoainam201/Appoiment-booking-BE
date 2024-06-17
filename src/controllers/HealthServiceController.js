@@ -358,15 +358,15 @@ const getCollaborativeFilteringRecommendations = async (req, res) => {
       .slice(0, 5); // Lấy 5 dịch vụ đầu tiên
   }
 
-  return res.status(200).json(servicesToRecommend);
-  // const servicesC = await HealthService.findAll({
-  //   where: {
-  //     id: {
-  //       [Op.in]: servicesToRecommend.slice(0, 5).map((service) => service.serviceId)
-  //     }
-  //   }
-  // });
-  // return res.status(200).json(servicesC);
+  // return res.status(200).json(servicesToRecommend);
+  const servicesC = await HealthService.findAll({
+    where: {
+      id: {
+        [Op.in]: servicesToRecommend.slice(0, 5).map((service) => service.serviceId)
+      }
+    }
+  });
+  return res.status(200).json(servicesC);
 };
 
 const getTopDoctors = async (req, res) => {
