@@ -8,6 +8,7 @@ const transporter = require("../configs/transporter.config");
 const HealthService = require("../models/HealthService");
 const Diagnosis = require("../models/Diagnosis");
 const Prescription = require("../models/Prescription");
+const HealthFacility = require("../models/HealthFacility");
 
 const getBookingByUser = async (req, res) => {
   try {
@@ -116,6 +117,13 @@ const accept = async (req, res) => {
     booking.updated_at = new Date();
     await booking.save();
     await t.commit();
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: 'nam.nh194628@sis.hust.edu.vn',
+      subject: "HealthPro",
+      text: "Yêu cầu khám của bạn đã được xác nhận!",
+    }
+    await transporter.sendMail(mailOptions);
     return res.status(200).json(booking);
   } catch (error) {
     await t.rollback();
@@ -136,6 +144,7 @@ const reject = async (req, res) => {
     }
     booking.status = bookingStatus.REJECTED;
     booking.updated_at = new Date();
+
     await booking.save();
     await t.commit();
     const mailOptions = {
@@ -222,13 +231,23 @@ const cancel = async (req, res) => {
     booking.status = bookingStatus.CANCELLED;
     booking.updated_at = new Date();
     await booking.save();
-    // await Notification.create({
-    //     content: `Lịch khám bệnh của ${booking.booking_user_name} bi huy`,
-    //     to_staff_id: booking.charge_of,
-    //     status: notificationStatus.UNREAD,
-    //     created_at: new Date(),
-    //     updated_at: new Date(),
-    // })
+    const user = await User.findOne({
+      where: {
+        id: booking.user_id
+      }
+    });
+    const service = await HealthService.findOne({
+      where: {
+        id: booking.service_id
+      }
+    });
+    await Notification.create({
+        content: `Lịch khám bệnh ID ${booking.id} bị hủy`,
+        facility_id: service.facility_id,
+        status: notificationStatus.UNREAD,
+        created_at: new Date(),
+        updated_at: new Date(),
+    })
     await t.commit();
     return res.status(200).json(booking);
   } catch (error) {

@@ -3,6 +3,7 @@ const {newsStatus, bookingStatus} = require("../utils/constants");
 const Booking = require("../models/Booking");
 const HealthService = require("../models/HealthService");
 const sequelize = require("../configs/db.config");
+const Notification = require("../models/Notification");
 const {Op, fn, col} = require("sequelize");
 
 const create = async (req, res) => {
