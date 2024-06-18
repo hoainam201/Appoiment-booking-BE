@@ -32,7 +32,7 @@ const updateBookingStatus = async () => {
       UPDATE bookings
       SET status = 4
       WHERE status NOT IN (3, 5)
-      AND AND time < current_timestamp;
+      AND time < current_timestamp;
     `);
     console.log('Booking statuses updated successfully.');
   } catch (error) {
