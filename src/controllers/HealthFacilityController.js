@@ -5,9 +5,18 @@ const sequelize = require("../configs/db.config");
 const FacilityStaff = require("../models/FacilityStaff");
 const Booking = require("../models/Booking");
 const HealthService = require("../models/HealthService");
-const ServiceReview = require("../models/ServiceReview");
-const fileUploader = require("../configs/cloudinary.config");
+const diacritics = require('diacritics');
 const {QueryTypes, Sequelize} = require("sequelize");
+
+function abbreviateName(fullName) {
+  // Chia tách tên đầy đủ thành mảng các từ
+  const words = fullName.trim().split(/\s+/);
+
+  // Lấy chữ cái đầu của từng từ và chuyển thành viết hoa
+  const initials = words.map(word => word.charAt(0).toUpperCase()).join('');
+
+  return initials;
+}
 
 const create = async (req, res) => {
   const t = await sequelize.transaction();
@@ -73,16 +82,18 @@ const search = async (req, res) => {
   try {
     const name = req.body.name ? req.body.name : null;
     const specialities = req.body.speciality ? req.body.speciality : null;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const page = req.body.page ? parseInt(req.body.page) : 1;
     const maxPage = Math.ceil((await HealthFacility.count()) / 20);
-    if (page > maxPage) {
-      return res.status(404).json({message: "Page not found"});
-    }
     const address = req.body.address ? req.body.address : null;
     const query = {};
     if (name) {
       query.name = {
-        [Op.iLike]: `%${name}%`
+        [Op.or]:[
+          {[Op.iLike]: `%${name}%`},
+          {[Op.iLike]: `%${diacritics.remove(name)}%`},
+          {[Op.iLike]: `%${diacritics.remove(name.replace(/\s+/g, ""))}%`},
+          {[Op.iLike]: `%${abbreviateName(name)}%`},
+        ]
       }
     }
     if (specialities) {
@@ -95,7 +106,12 @@ const search = async (req, res) => {
     }
     if (address) {
       query.address = {
-        [Op.iLike]: `%${address}%`
+        [Op.or]: [
+          {[Op.iLike]: `%${address}%`},
+          {[Op.iLike]: `%${diacritics.remove(address)}%`},
+          {[Op.iLike]: `%${diacritics.remove(address.replace(/\s+/g, ""))}%`},
+          {[Op.iLike]: `%${abbreviateName(address)}%`},
+        ]
       }
     }
     query.active = {
@@ -109,9 +125,9 @@ const search = async (req, res) => {
     if (!healthFacility) {
       return res.status(404).json({message: "Not found"});
     }
-    res.status(200).json({
+    res.  status(200).json({
       healthFacility: healthFacility.rows,
-      maxPage: maxPage
+      maxPage: parseInt((healthFacility.count / 20) + 1)
     });
   } catch (error) {
     res.status(500).json({message: error.message});
