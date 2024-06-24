@@ -84,10 +84,10 @@ const show = async (req, res) => {
 
 const getAll = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const maxPage = Math.ceil((await News.count()) / 20);
+  // const maxPage = Math.ceil((await News.count()) / 21);
   const news = await News.findAndCountAll({
-    offset: (page - 1) * 20,
-    limit: 20,
+    offset: (page - 1) * 21,
+    limit: 21,
     where: {
       status: {
         [Op.eq]: newsStatus.SHOW
@@ -103,7 +103,7 @@ const getAll = async (req, res) => {
 
   return res.status(200).json({
     news: news.rows,
-    maxPage: maxPage
+    maxPage: Math.ceil(news.count / 21),
   });
 }
 

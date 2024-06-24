@@ -11,12 +11,11 @@ const {Op} = require("sequelize");
 const getAllDoctor = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const maxPage = Math.ceil((await FacilityStaff.count()) / 20);
         if (page > maxPage) {
             return res.status(404).json({message: "Page not found"});
         }
         const doctor = await FacilityStaff.findAndCountAll({
-            offset: (page - 1) * 10,
+            offset: (page - 1) * 20,
             limit: 20,
             where: {
                 type: staffRole.DOCTOR,
@@ -25,7 +24,7 @@ const getAllDoctor = async (req, res) => {
         })
         res.status(200).json({
             doctor: doctor,
-            maxPage: maxPage
+            maxPage: Math.ceil(doctor.count / 20),
         });
     } catch (error) {
         res.status(500).json({message: error.message});

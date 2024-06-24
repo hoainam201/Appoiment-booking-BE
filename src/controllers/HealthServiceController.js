@@ -117,7 +117,7 @@ const search = async (req, res) => {
     });
     res.status(200).json({
       services: services.rows,
-      maxPage: maxPage
+      maxPage: Math.ceil(services.count / 20),
     });
   } catch (error) {
     res.status(500).json({message: error.message});
