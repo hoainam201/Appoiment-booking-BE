@@ -97,9 +97,6 @@ const getAll = async (req, res) => {
   if (!news) {
     return res.status(404).json({message: "News not found"});
   }
-  if (page > maxPage) {
-    return res.status(404).json({message: "Page not found"});
-  }
 
   return res.status(200).json({
     news: news.rows,
