@@ -59,7 +59,7 @@ const createDoctor = async (req, res) => {
         await t.commit();
         const mailOptions = {
             from: 'mayurijedgement@gmail.com',
-            to: 'nam.nh194628@sis.hust.edu.vn',
+            to: email,
             subject: 'Chào mừng',
             text: `Tài khoản của bạn được tạo thành công\nEmail: \"${email}\"\n Mật khẩu là: \"${password}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
         };
@@ -139,7 +139,7 @@ const createManager = async (req, res) => {
         await t.commit();
         const mailOptions = {
             from: 'mayurijedgement@gmail.com',
-            to: 'nam.nh194628@sis.hust.edu.vn',
+            to: email,
             subject: 'Chào mừng',
             text: `Tài khoản của bạn được tạo thành công\nEmail: \"${email}\"\n Mật khẩu là: \"${password}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
         };
@@ -273,7 +273,7 @@ const forgetPassword = async (req, res) => {
         // Cấu hình nội dung email
         const mailOptions = {
             from: 'mayurijedgement@gmail.com',
-            to: 'nam.nh194628@sis.hust.edu.vn',
+            to: staff.email,
             subject: 'Thay đổi mật người dùng',
             text: `Mật khẩu của bạn đã được thay đổi thành: \"${newPassword}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
         };

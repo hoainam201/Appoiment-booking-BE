@@ -10,6 +10,7 @@ const Diagnosis = require("../models/Diagnosis");
 const Prescription = require("../models/Prescription");
 const User = require("../models/User");
 const HealthFacility = require("../models/HealthFacility");
+const {formatInTimeZone} = require("date-fns-tz");
 
 const getBookingByUser = async (req, res) => {
   try {
@@ -132,11 +133,12 @@ const accept = async (req, res) => {
     booking.updated_at = new Date();
     await booking.save();
     await t.commit();
+    const user = await User.findByPk(booking.user_id);
     const mailOptions = {
       from: process.env.EMAIL,
-      to: 'nam.nh194628@sis.hust.edu.vn',
+      to: user.email,
       subject: "HealthPro",
-      text: "Yêu cầu khám của bạn đã được xác nhận!",
+      text: `Yêu cầu khám của bạn lúc ${formatInTimeZone(booking.time, "Asia/Ho_Chi_Minh", "yyyy-MM-dd HH:mm")} đã được chấp thuận!`,
     }
     await transporter.sendMail(mailOptions);
     return res.status(200).json(booking);
@@ -159,14 +161,14 @@ const reject = async (req, res) => {
     }
     booking.status = bookingStatus.REJECTED;
     booking.updated_at = new Date();
-
+    const user = await User.findByPk(booking.user_id);
     await booking.save();
     await t.commit();
     const mailOptions = {
       from: process.env.EMAIL,
-      to: 'nam.nh194628@sis.hust.edu.vn',
+      to: user.email,
       subject: "HealthPro",
-      text: "Yêu cầu khám của bạn đã bị từ chối!",
+      text: `Yêu cầu khám của bạn lúc ${formatInTimeZone(booking.time, "Asia/Ho_Chi_Minh", "yyyy-MM-dd HH:mm")} đã bị từ chối!`,
     }
     await transporter.sendMail(mailOptions);
     return res.status(200).json(booking);

@@ -69,7 +69,7 @@ const sendEmail = async () => {
 
             const mailOptions = {
               from: process.env.EMAIL,
-              to: 'nam.nh194628@sis.hust.edu.vn',
+              to: email,
               subject: 'Nhắc nhở lịch hẹn',
               text: `Kính gửi ${name},\n\nĐây là lời nhắc về đặt chỗ của bạn vào hôm nay.\n\nTrân trọng,\nĐội ngũ dịch vụ của bạn`
             };

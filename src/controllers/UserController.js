@@ -113,7 +113,7 @@ const forgotPassword = async (req, res) => {
         // Cấu hình nội dung email
         const mailOptions = {
             from: 'mayurijedgement@gmail.com',
-            to: 'nam.nh194628@sis.hust.edu.vn',
+            to: user.email,
             subject: 'Thay đổi mật người dùng',
             text: `Mật khẩu của bạn đã được thay đổi thành: \"${newPassword}\"\nVui lòng đổi lại mật khẩu mới khi đăng nhập!!!!`,
         };
