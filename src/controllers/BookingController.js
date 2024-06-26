@@ -115,7 +115,7 @@ const create = async (req, res) => {
     })
     await t.commit();
     const io = req.app.get('socketio');
-    io.to(service.facility_id).emit('newBooking', booking);
+    io.to(service.facility_id).emit('newBooking', `Yêu cầu ${req.body.name} đặt lịch ${service.name}`);
     return res.status(200).json(booking);
   } catch (error) {
     await t.rollback();
@@ -272,7 +272,7 @@ const cancel = async (req, res) => {
         updated_at: new Date(),
     });
     const io = req.app.get('socketio');
-    io.to(service.facility_id).emit('newBooking', booking);
+    io.to(service.facility_id).emit('newBooking', `Lịch khám bệnh ID ${booking.id} bị hủy`);
     await t.commit();
     return res.status(200).json(booking);
   } catch (error) {
