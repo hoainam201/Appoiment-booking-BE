@@ -55,6 +55,8 @@ const create = async (req, res) => {
       created_at: new Date(),
       updated_at: new Date()
     });
+    const io = req.app.get('socketio');
+    io.to(service.facility_id).emit('newBooking', `Đánh giá ${booking.name} cho ${service.name}`);
     booking.service_review_id = serviceReview.id;
     await booking.save({transaction: t});
     const query = `SELECT AVG(rating) as rating
