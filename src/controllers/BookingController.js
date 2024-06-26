@@ -84,7 +84,11 @@ const create = async (req, res) => {
     }
     const conflict = await Booking.findOne({
       where: {
-        time: req.body.time
+        time: req.body.time,
+        user_id: req.user.id,
+        status: {
+          [Op.or]: [bookingStatus.PENDING, bookingStatus.ACCEPTED]
+        }
       }
     });
     if (conflict) {
@@ -110,6 +114,8 @@ const create = async (req, res) => {
       updated_at: new Date()
     })
     await t.commit();
+    const io = req.app.get('socketio');
+    io.to(service.facility_id).emit('newBooking', booking);
     return res.status(200).json(booking);
   } catch (error) {
     await t.rollback();
@@ -264,7 +270,9 @@ const cancel = async (req, res) => {
         status: notificationStatus.UNREAD,
         created_at: new Date(),
         updated_at: new Date(),
-    })
+    });
+    const io = req.app.get('socketio');
+    io.to(service.facility_id).emit('newBooking', booking);
     await t.commit();
     return res.status(200).json(booking);
   } catch (error) {

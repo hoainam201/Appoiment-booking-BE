@@ -22,6 +22,23 @@ const io = socketIo(server, {
   cors: true,
 });
 
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  // Lắng nghe sự kiện joinRoom từ client
+  socket.on('joinRoom', (facilityId) => {
+    socket.join(facilityId);
+    console.log(`Client joined room: ${facilityId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+// Lưu trữ đối tượng io trong app để sử dụng trong controller
+app.set('socketio', io);
+
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
