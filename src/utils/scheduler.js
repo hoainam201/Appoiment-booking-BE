@@ -4,6 +4,7 @@ const Booking = require('../models/Booking');
 const {Op} = require('sequelize');
 const User = require('../models/User');
 const transporter = require('../configs/transporter.config');
+const {formatInTimeZone} = require("date-fns-tz");
 require('dotenv').config();
 
 // Hàm cập nhật avg_rating
@@ -66,12 +67,13 @@ const sendEmail = async () => {
           if (user) {
             const email = user.email;
             const name = booking.name;
+            const time = booking.time;
 
             const mailOptions = {
               from: process.env.EMAIL,
               to: email,
               subject: 'Nhắc nhở lịch hẹn',
-              text: `Kính gửi ${name},\n\nĐây là lời nhắc về đặt chỗ của bạn vào hôm nay.\n\nTrân trọng,\nĐội ngũ dịch vụ của bạn`
+              text: `Kính gửi ${name},\n\nĐây là lời nhắc về đặt chỗ của bạn vào hôm nay lúc ${formatInTimeZone(time, "Asia/Ho_Chi_Minh", "HH:mm yyyy-MM-dd")}.\n\nTrân trọng,\nHealth Pro`
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
