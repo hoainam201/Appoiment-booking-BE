@@ -21,6 +21,9 @@ const create = async (req, res) => {
     const booking = await Booking.findByPk(
       booking_id
     );
+    const service = await HealthService.findByPk(
+      service_id
+    );
     if (!booking || booking.service_id !== service_id) {
       return res.status(404).json({message: "Id không tồn tại"});
     }
@@ -50,8 +53,8 @@ const create = async (req, res) => {
       transaction: t
     });
     await Notification.create({
-      content: `Đánh giá ${booking.user_name} cho ${booking.service_name}`,
-      facility_id: booking.facility_id,
+      content: `Đánh giá từ ${booking.name} cho dv ${service.name}`,
+      facility_id: service.facility_id,
       status: notificationStatus.UNREAD,
       created_at: new Date(),
       updated_at: new Date()
@@ -66,7 +69,7 @@ const create = async (req, res) => {
     await t.commit();
     const data = await sequelize.query(query, {type: sequelize.QueryTypes.SELECT});
     const avg = (data[0].rating * 10) / 10;
-    const service = await HealthService.findByPk(service_id);
+    // const service = await HealthService.findByPk(service_id);
     service.avg_rating = avg;
     await service.save();
     res.status(201).json(serviceReview);
