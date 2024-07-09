@@ -5,6 +5,7 @@ const HealthService = require("../models/HealthService");
 const sequelize = require("../configs/db.config");
 const Notification = require("../models/Notification");
 const {Op, fn, col} = require("sequelize");
+const {notificationStatus} = require("../utils/constants");
 
 const create = async (req, res) => {
   const t = await sequelize.transaction();
