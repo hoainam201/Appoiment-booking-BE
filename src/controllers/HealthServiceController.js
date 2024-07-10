@@ -58,7 +58,7 @@ const getAllPackages = async (req, res) => {
 const search = async (req, res) => {
   try {
     const name = req.body.name ? req.body.name : null;
-    const type = req.body.type ? req.body.type : null;
+    const type = req.body.type;
     const speciality = req.body.speciality ? req.body.speciality : null;
     const page = parseInt(req.body.page) || 1;
     const maxPage = Math.ceil((await HealthService.count()) / 20) - 1;
@@ -99,7 +99,7 @@ const search = async (req, res) => {
         [Op.iLike]: `%${name}%`
       }
     }
-    if (type) {
+    if (type !== null && type !== undefined) {
       query.type = {
         [Op.eq]: type
       }
