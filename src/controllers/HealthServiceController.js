@@ -137,12 +137,21 @@ const create = async (req, res) => {
     const charge_of = req.body.chargeOf;
     const created_by = req.staff.email;
     const updated_by = req.staff.email;
+    const exit = await HealthService.findOne({
+      where: {
+        charge_of: charge_of,
+        type: serviceType.DOCTOR
+      }
+    });
+    if (exit) {
+      return res.status(400).json({message: "Dịch vụ y tế đã tồn tại"});
+    }
     await HealthService.create({
       name: name,
       type: type,
       speciality: speciality,
       description: description,
-      image: req.file.path ? req.file.path : null,
+      image: req.file ? req.file.path : null,
       facility_id: req.staff.facility_id,
       fee: fee,
       charge_of: charge_of,

@@ -7,6 +7,7 @@ const generateNewPassword = require("../utils/generateNewPassword");
 const transporter = require("../configs/transporter.config");
 const {hashPassword} = require("../utils/crypt");
 const {Op} = require("sequelize");
+const HealthService = require("../models/HealthService");
 
 const getAllDoctor = async (req, res) => {
     try {
@@ -245,6 +246,17 @@ const update = async (req, res) => {
         }, {
             transaction: t
         });
+        if(staff.role === staffRole.DOCTOR) {
+            await HealthService.update({
+              name: req.body.name,
+            }, {
+              where: {
+                charge_of: staff.email
+              }
+            }, {
+              transaction: t
+            });
+        }
         await t.commit();
         res.status(200).json({message: "Staff updated successfully"});
     } catch (error) {
