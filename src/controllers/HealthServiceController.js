@@ -257,7 +257,8 @@ const getAllByFacility = async (req, res) => {
     const id = req.params.id;
     const services = await HealthService.findAll({
       where: {
-        facility_id: id
+        facility_id: id,
+        active: true
       }
     });
     if (!services) {
