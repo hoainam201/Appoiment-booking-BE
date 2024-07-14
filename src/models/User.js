@@ -27,6 +27,10 @@ const User = sequelize.define("users", {
         isNumeric: true
       }
     },
+    dob: {
+      type: DataTypes.DATEONLY,
+      defaultValue: '1900-01-01'
+    },
     address: {
       type: DataTypes.STRING,
     },
