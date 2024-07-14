@@ -45,7 +45,7 @@ const createDoctor = async (req, res) => {
         console.log(req.body);
         const staff = await FacilityStaff.create({
             name: name,
-            email: email,
+            email: email.toLowerCase(),
             password: passwordHash,
             facility_id: facility_id,
             avatar: null,
@@ -126,7 +126,7 @@ const createManager = async (req, res) => {
         const passwordHash = await hashPassword(password);
         const staff = await FacilityStaff.create({
             name: name,
-            email: email,
+            email: email.toLowerCase(),
             password: passwordHash,
             facility_id: facility_id,
             avatar: null,
@@ -271,7 +271,7 @@ const forgetPassword = async (req, res) => {
         const email = req.body.email;
         const staff = await FacilityStaff.findOne({
             where: {
-                email: email
+                email: email.toLowerCase()
             }
         });
         if (!staff) {

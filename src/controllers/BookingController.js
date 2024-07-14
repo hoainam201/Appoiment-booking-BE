@@ -39,7 +39,7 @@ const getBookingByDoctor = async (req, res) => {
                             join health_services h on b.service_id = h.id
                    where (b.charge_of = ? or
                           (h.speciality = ? and h.type = 1))
-                     and ((b.status = 1 and b.time >= current_date and b.time < current_date + 7)
+                     and ((b.status = 6 and b.time >= current_date and b.time < current_date + 7)
                        or b.status = 5)
                    order by (b.time - current_timestamp) asc;`;
     const bookings = await sequelize.query(query, {
@@ -217,7 +217,7 @@ const start = async (req, res) => {
     if (!booking) {
       return res.status(404).json({message: "Booking not found"});
     }
-    if (booking.status !== bookingStatus.ACCEPTED) {
+    if (booking.status !== bookingStatus.CHECKIN) {
       return res.status(400).json({message: "Booking not accepted"});
     }
     booking.status = bookingStatus.STARTED;
@@ -367,6 +367,30 @@ const paid = async (req, res) => {
   }
 }
 
+const checkin = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const booking = await Booking.findOne({
+      where: {
+        id: id
+      }
+    });
+    if (!booking) {
+      return res.status(404).json({message: "Booking not found"});
+    }
+    if(booking.status !== bookingStatus.ACCEPTED) {
+      return res.status(400).json({message: "Booking not accepted"});
+    }
+    booking.status = bookingStatus.CHECKIN
+    booking.checkin_at = new Date();
+    booking.updated_at = new Date();
+    await booking.save();
+    return res.status(200).json(booking);
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+}
+
 module.exports = {
   getBookingByManager,
   getBookingByUser,
@@ -379,5 +403,6 @@ module.exports = {
   cancel,
   details,
   paid,
-  detailByUser
+  detailByUser,
+  checkin
 }

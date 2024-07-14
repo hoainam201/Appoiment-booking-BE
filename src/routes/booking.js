@@ -18,5 +18,6 @@ router.get("/details/:id", checkUser, bookingController.details);
 router.get("/get-details/:id", checkStaff(), bookingController.details);
 router.put("/paid/:id", checkStaff(staffRole.MANAGER), bookingController.paid);
 router.get("/detail/:id", checkUser, bookingController.detailByUser);
+router.put("/checkin/:id", checkStaff(staffRole.MANAGER), bookingController.checkin);
 
 module.exports = router;

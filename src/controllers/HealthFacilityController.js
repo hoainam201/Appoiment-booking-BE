@@ -40,7 +40,7 @@ const create = async (req, res) => {
       specialities: specialities,
       type: type,
       phone: phone,
-      email: email,
+      email: email.toLowerCase(),
       avatar: avatar,
       description: description,
       active: true,

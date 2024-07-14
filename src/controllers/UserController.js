@@ -49,7 +49,7 @@ const createUser = async (req, res) => {
         }
         passwordEncrypted = await crypt.hashPassword(password);
         await User.create({
-            email: email,
+            email: email.toLowerCase(),
             password: passwordEncrypted,
             name: name
         });
